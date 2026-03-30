@@ -1,5 +1,1825 @@
-Version: 1.0
+Version: 3.1.1
+---
+title: "User Manual for Secondary Analysis of Global Burden of Disease Data - Based on easyGBDR"
+author:
+  - Xiaoming
+  - Siqi Li
+keywords:
+  - English
+  - R Markdown
+output:
+  word_document:
+    fig_caption: yes
+    number_sections: yes
+    toc: yes
+    toc_depth: 3
+---
 
+```{r echo=FALSE}
+knitr::opts_chunk$set(warning=F,message=F)
+```
+
+
+\newpage 
+# Installation and Authorization of the easyGBDR Package    
+
+## Installing the R Language Trilogy  
+
+　　Before installing the easyGBDR package, we need to ensure that we have installed R version 4.2 or higher, RStudio, and Rtools matching the current R version. For Mac users, you need to install xcode and do not need to install Rtools.  
+
+## Installing Dependent R Packages  
+
+　　After installing the R trilogy, create a new R script and run the following script to install the required packages:
+
+```{r eval=F}
+for (i in c("remotes","httr","jsonlite","tidyverse")) {
+if (! i %in% installed.packages()[,"Package"]) {
+install.packages(i, dependencies = TRUE, quiet = TRUE, keep_outputs=TRUE)
+}
+} 
+if (!'stringr.plus' %in% installed.packages()[,"Package"]) {
+remotes::install_github("johncassil/stringr.plus")
+} 
+```
+
+## Installation of easyGBDR 
+　
+```{r eval=F}
+GBDRhelp::install_easyGBDR()
+```
+　　
+　　After installation, you can load and use it.
+
+## Loading the easyGBDR Package   
+
+```{r}
+# Like other packages, it needs to be loaded before use
+library(easyGBDR)
+```
+
+## Viewing All Functions in the easyGBDR Package　　
+
+　　The easyGBDR package integrates multiple statistical models and plotting commands, making it difficult to memorize everything. Therefore, we need to list all function names and then select the required functions for analysis.。　　
+　　
+```{r}
+# Use the ls() function to list all functions in the easyGBDR package
+ls("package:easyGBDR")
+```
+　　
+　　Among the functions above, those starting with GBD are various modeling functions; those starting with gg are plotting functions based on ggplot2. Additionally, there are some built-in data, such as SDI2019, shp_location, Quantile, std_GBD2019, etc. These data are essential for operations like APC modeling, future predictions, plotting, and age standardization. 
+
+## Viewing Function Help       
+
+　　So how do we use each function? We can type an English question mark before the function name to view its help documentation. Taking GBDeapc as an example, this function can build an EAPC model and perform batch calculation of EAPC:  
+　　
+```{r eval=F}
+# For example, view the help for the GBDeapc function:
+?GBDeapc
+```
+
+GBDeapc(data=df1,  #Specify data as df1；
+        rei=F,     #If the data does not have a rei variable, set rei=F; if it does, set rei=T;
+        EAPC_95CI=T,  # Whether to calculate the 95% CI for EAPC；
+        EAPC_95CI=T,  #Number of decimal places to retain；
+        digits,    #Number of decimal places to retain；
+        sep=" to ") #Use " to " to connect the interval; you can also choose "-", et 
+```
+
+
+## Viewing Built-in Data  
+
+　　Here is a demonstration of how to view the built-in data in the easyGBDR package：  
+　　
+```{r}
+# Standard Population
+data(std_GBD2019)
+head(std_GBD2019)
+```
+
+　　
+```{r}
+# data of 204 countries with their correspondingGBD region, 
+# super region, and SDI in 2019
+data(GBDRegion)
+head(GBDRegion)
+```
+
+## How to Update the easyGBDR Package
+```{r eval=F}
+update_easyGBDR() ## Update the easyGBDR package
+```
+
+## How to Obtain the easyGBDR Learning Manual, Sample Data, and Sample Code
+```{r}
+# data of 204 countries with their correspondingGBD region, 
+# super region, and SDI in 2019
+easyGBDR_document()
+```
+
+# Notes When Downloading GBD Disease Data
+
+## When Downloading, Select the Middle Option: IDs, Names, Both
+
+　When downloading data via the GBD Results Tool, due to recent significant changes to location names by GBD, we recommend using IDs or Both for downloading, and then using our reading function to read the data.    
+
+
+
+\newpage 
+# Data Download and Reading
+   
+   Please note that here we use easyGBDR functions for downloading and reading. Do not use other R packages for reading, because the GBD official website sometimes modifies data labels. Therefore, we will perform data standardization processing in our reading functions to reduce the chance of errors. We have built-in two functions here.
+
+## Using the download_GBD() Function to Download Data
+
+```{r eval=FALSE}
+download_GBD(url='https://vizhub.healthdata.org/gbd-results/result/817ac18718bb5e1b6f50c480ca6d52fd', #URL of the GBD download interface, as shown in the figure above
+        dest = 'D:/GBD' #Target folder where you store the downloaded GBD files
+        )
+```
+## Using the GBDread() Function to Read Data  
+
+　　Assuming the downloaded GBD data is stored in the data folder on the D drive, we can use the GBDread() function to batch read zip files (note that the zip file must be data directly downloaded from GBD results, do not make any changes).
+
+![](D:/BaiduSyncdisk/2.课题/easy GBDR写作/easyGBDRdocument/文件路径获得.png)
+　　The usage of the GBDread() function is as follows:
+
+```{r eval=FALSE}
+GBDread(zipfile, 
+        folder = F, 
+        foldername = NULL)
+```
+
+　　For reading a single zip file, we only need to specify the zipfile parameter at the front, which is the file name (including path and extension):    
+
+```{r eval=F}
+# Reading a single zipfile data
+# Default folder = F, foldername = NULL
+df1 <- GBDread(zipfile = "D:/data/IHME-GBD_2019_DATA-bd31fc5a-1.zip")
+# Or omit zipfile
+df1 <- GBDread("D:/data/IHME-GBD_2019_DATA-bd31fc5a-1.zip")
+```
+　　For reading multiple zip files, ignore the zipfile parameter and set the following two parameters: folder=T, foldername="folder path" (friendly reminder: never compress the folder and then use GBDread to read it), for example:   
+
+```{r eval=F}
+mydata <- GBDread(folder=T,
+                  foldername = "D:/data")  #path
+```
+
+## Using the GBDread_csv() Function to Read Data 
+
+  We consider that many people are not used to using GBDread to read compressed files, so we also set up GBDread_csv() to read decompressed csv files. The internal function also has built-in data standard conversion, but this function only applies to a single csv file
+
+```{r eval=F}
+mydata <- GBDread_csv('data.csv')#path
+```
+
+\newpage 
+# Calculation of Age-Standardized Rates    
+
+## Principles  
+
+　　Age standardization is to remove the influence of population age structure on overall rates, thereby enabling comparison of disease burden across different years and regions.   
+
+　　Although GBD has provided age-standardized data (Age-standardized rate, ASR), this ASR is for all age groups (0 ~ 99+). Sometimes we need to study epidemiological indicators for specific age groups, such as children and adolescents, working populations, adults, and the elderly. In this case, using ASR for all age groups is not appropriate, and we need to calculate ASR for specific age groups ourselves.   
+
+　　There are many methods for age standardization. The direct standardization method is more appropriate here. Simply put, it multiplies the crude rate of each age group (usually 5 years) by the proportion of the population in that group under the standard population, and then sums them up. 
+
+　　As shown in the figure below, we extract the required age groups to recalculate the new standard population. The original standard population is the population composition of all age groups, with an age range from 0-95plus, while the new standard population has an age range between 10-29 years, accounting for 32.81% of the original standard population. We first calculate the population composition ratio of the new standard population (10 to 14, 15 to 19, etc.). As shown in red font in the table below:  
+　　
+![](D:/BaiduSyncdisk/2.课题/easy GBDR写作/easyGBDRdocument/标准人口新.png)  
+
+　　Then, we can use the direct standardization method to calculate the age-standardized rate of the selected group, which is to multiply the crude rate of each age group by the population proportion of that age group, and then sum them up: 
+
+![](D:/BaiduSyncdisk/2.课题/easy GBDR写作/easyGBDRdocument/年龄标准化率.png) 
+
+　　The GBDage_recal() and GBDrei_age_recal() functions of the easyGBDR package can easily achieve batch age standardization of multiple groups of data. The function syntax is:  
+　　
+```{r eval=FALSE}
+# Calculate ASR for specific age groups without rei variable
+GBDage_recal(data, startage, endage, CI = F)
+# Calculate ASR for specific age groups with rei variable
+GBDrei_age_recal(
+  rei_data,
+  GBDage_recal_result = NULL,
+  startage,
+  endage,
+  CI = F)
+```
+ 
+  Among them, data is the original GBD data included in the calculation, startage and endage are the minimum and maximum values of the selected age subgroups. The CI parameter can choose T or F, indicating whether to calculate the confidence interval of the age-standardized prevalence rate. It should be noted that the data must provide Number, and the age must be data with 5 years as an age group, which must be data from c("0 to 4","5 to 9","10 to 14", "15 to 19","20 to 24", "25 to 29","30 to 34", "35 to 39", "40 to 44", "45 to 49", "50 to 54", "55 to 59","60 to 64", "65 to 69", "70 to 74", "75 to 79", "80 to 84",  "85 to 89","90 to 94", "95 plus"). Since the GBD official website often modifies labels, age labels will change. You only need to download data with 5 years as an age group, and it will be modified when using the reading function or each function.
+  
+## Demonstration of GBDage_recal() Function
+
+　　Here we demonstrate with chronic kidney disease data.
+
+```{r}
+# 1. Read CKD data  
+data <- GBDread('IHME-GBD_2019_DATA-1b3dc021-1.zip') #GBD downloaded file
+
+```
+
+```{r}
+# 2. View data column names
+colnames(data)
+```
+```{r}
+# 3. View the number of unique values for each categorical variable
+sapply(data[,1:7],
+       data.table::uniqueN)
+```
+According to the prompt, we know that the age indicator has 22 values. We can further obtain the specific values of the variable through the unique() function, for example:  
+
+```{r}
+unique(data$age)
+```
+We can also view the unique values of multiple variables at the same time:  
+
+```{r}
+unique_variable <- list(measure=unique(data$measure),
+                        location=unique(data$location),
+                        sex=unique(data$sex),
+                        age=unique(data$age),
+                        cause=unique(data$cause),
+                        metric=unique(data$metric),
+                        year=unique(data$year))
+unique_variable
+```
+
+Viewing data is very important. As data analysts, we must have a thorough understanding of the data we have.
+
+
+For convenience, we select two regions, Global and China, to calculate the age-standardized rate for the working population:  
+
+```{r}
+# 4. Select the required data
+temp <- data |> 
+  filter(metric=="Number") |> #Select Number
+  filter(!age%in%c("All ages","Age-standardized")) |> #Reverse selection, remove
+  filter(location%in%c("Global","China")) #Select region
+colnames(temp)
+
+# 5. View data
+unique_variable <- list(measure=unique(temp$measure),
+                        location=unique(temp$location),
+                        sex=unique(temp$sex),
+                        age=unique(temp$age),
+                        cause=unique(temp$cause),
+                        metric=unique(temp$metric),
+                        year=unique(temp$year))
+unique_variable
+  
+# 5. Calculate age-standardized rates for each indicator
+### GBDage_recal
+## Conditions to meet:
+## 1. Must have Number data
+## 2. The provided age groups must be data with 5 years as a group: 20-39: 20-24, 25-29, 30-34, 35-39
+## 3. Only applicable to cause data, not applicable to data containing rei
+## 4. Output: Output ASR, number and rate for all ages
+
+result <- GBDage_recal(data, startage=30, endage=75, CI = F)
+```
+
+View the generated result data. The age here has 2 values, which are:  
+
+```{r}
+unique(result$age)
+```
+"Age-standardized" and "All ages" are calculated by us through easyGBDR.  
+
+
+## Demonstration of GBDrei_age_recal() Function
+```{r}
+# Read GBD data containing rei
+GBDrei_age_recal_data <- readRDS(file = 'GBDrei_age_recal_data.rds')
+
+## GBDrei_age_recal
+## age must be 5 years as an age group
+## This function only applies to data containing rei
+## The function can include ASR or all age data
+## The data must contain number data
+## The GBDage_recal_result parameter refers to the corresponding cause data without rei after using GBDage_recal, mainly used for calculating PAF
+
+# We do not calculate PAF results here
+rei_result <- GBDrei_age_recal(
+  rei_data=GBDrei_age_recal_data,
+  GBDage_recal_result = NULL, ## NULL means not calculating PAF data
+  startage=15,
+  endage=40,
+  CI = T
+)
+
+```
+
+
+View the age data of the generated rei_result. The age here has 2 values, which are:  
+
+```{r}
+unique(rei_result$age)
+```
+
+View the metric data of the generated rei_result. The metric here has 2 values, which are:
+```{r}
+unique(rei_result$metric)
+```
+The above results did not include the calculation results of GBDage_recal(), so the generated percent data is PAF.
+
+If PAF data needs to be calculated, we first need to use GBDage_recal() to calculate the results and substitute them into the GBDage_recal_result parameter
+```{r eval=FALSE}
+# Read GBD data without rei and perform calculations
+GBDage_recal_data <- readRDS(file = 'GBDage_recal_data.rds')
+result <- GBDage_recal(data=GBDage_recal_data, startage=15, endage=40, CI = T)
+
+
+# We do not calculate PAF results here
+# To calculate PAF results, you need to ensure that the cause labels in your rei_data must include the labels in the cause of the GBDage_recal_result dataset
+rei_result2 <- GBDrei_age_recal(
+  rei_data=GBDrei_age_recal_data,
+  GBDage_recal_result = result,  ## Parameter required for calculating PAF 
+  startage=15,
+  endage=40,
+  CI = T
+)
+
+```
+
+
+View the metric data of the generated rei_result2. The metric here has 3 values, which are:
+```{r eval=FALSE}
+unique(rei_result2$metric)
+```
+Among them, percent is the PAF data. At this time, we view the percent result part
+```{r eval=FALSE}
+temp <- subset(rei_result2,metric=='Percent')
+head(temp)
+```
+
+
+# Merging Different cause and rei Data Results
+
+## Principles
+  Considering that we need to merge different causes, for example, if we want to calculate the data results of gastrointestinal tumors, we need to merge the data of esophageal cancer, gastric cancer, and colorectal cancer. Here we need to use the GBDcause_sum() function.
+  
+  Similarly, when we need to merge different rei results, for example, if we want to calculate the disease burden results caused by smoking or drinking, we can use GBDrei_sum() to merge them.
+  
+```{r eval=FALSE}
+# Function to merge different causes, this function also applies to data containing rei
+GBDcause_sum(data, cause_from, cause_to, CI = F)
+# Function to merge different rei
+GBDrei_sum(data, rei_from, rei_to, CI = F)
+```
+
+## GBDcause_sum() Operation Demonstration
+```{r eval=FALSE}
+# data	Original GBD data
+# cause_from	Names of causes to be merged, must match the label names in the data
+# cause_to	Name of the merged cause, can be named by yourself
+# CI	Whether to calculate 95% CI
+# This function also applies to data containing rei
+data <- readRDS('cause_sum.rds')
+cause_sum <- GBDcause_sum(data,
+                          cause_from= c( "Depressive disorders","Interpersonal violence"),
+                          cause_to='a', ## Name according to your own habits
+                          CI = T)
+tail(cause_sum)
+```
+
+## GBDrei_sum() Operation Demonstration
+```{r}
+# data	Original GBD data
+# rei_from	Names of rei to be merged, must match the label names in the data
+# rei_to	Name of the merged rei, can be named by yourself
+# CI	Whether to calculate 95% CI
+# This function only applies to data containing rei
+data <- readRDS(file = 'GBDrei_age_recal_data.rds')
+rei_sum <- GBDrei_sum(data,
+                      rei_from= c( "Secondhand smoke","Smoking"),
+                      rei_to='smoke', ## Name according to your own habits
+                          CI = T)
+tail(rei_sum)
+```
+
+
+\newpage 
+# EAPC  
+
+## EAPC Principles    
+
+EAPC is an acronym for "estimated annual percent change", meaning "estimated annual percent change rate".  
+
+The EAPC model is very simple. Taking the age-standardized incidence rate of foreign body injuries in the eyes of the global working population as an example, assuming that the logarithm of the age-standardized incidence rate ASIR of foreign body injuries in the eyes of the global working population has a linear relationship with the year, then log val = β*year + error, and EAPC = [exp(β)-1] x 100%.  
+
+## Demonstration 
+```{r}
+data <- GBDread('IHME-GBD_2019_DATA-1b3dc021-1.zip')
+EAPC2 <- GBDeapc(data, 
+        rei = F,
+        EAPC_95CI = TRUE, 
+        digits = 2,
+        sep = " to ")
+
+EAPC2 
+```
+
+Our function can simultaneously estimate EAPC for multiple groups (including different countries, different genders, different measurement indicators, etc.), as shown below:    
+```{r}
+# Different groups (including different regions, different genders)
+EAPC3 <- GBDeapc(data=data |> #Select the group you want to calculate
+                   filter(age=="Age-standardized"), 
+        rei = F,
+        EAPC_95CI = TRUE, 
+        digits = 2,
+        sep = " to ")
+
+EAPC3 
+```
+
+At the same time, rates for different age groups were calculated for different measurement indicators of different regions and different gender populations.
+
+\newpage 
+# Joinpoint Model  
+
+## Model Principles    
+Joinpoint regression, also known as the joinpoint regression model, is used to discover turning points in disease trend changes (so-called joinpoints), and calculate the annual percent change (APC) between turning points, as well as the overall average annual percent change (AAPC).
+
+AAPC has similarities with the EAPC model mentioned earlier: both are trend research methods that can be used to judge the overall change trend of diseases. However, compared to the EAPC model, the joinpoint model can provide more information, such as discovering trend turning points (so-called Joinpoints), calculating the APC for each segment, and statistical tests of significance. And this model is used more widely, so we recommend using AAPC instead of EAPC.  
+
+The principles of the Joinpoint model have been explained in detail on the official website, and we have also published the usage of the desktop version of this software on Zhihu or WeChat public accounts^[https://zhuanlan.zhihu.com/p/511810728]. Therefore, we will not describe the principles in too much detail here.  
+
+But generally speaking, joinpoint regression on GBD data goes through the following three steps:  
+
+First, use a log-linear model (ln y = β*x) for segmented regression, use the grid search method (GSM) to establish all possible joinpoints, calculate the corresponding mean squared errors (MSE) for each possible situation, and select the grid point with the smallest MSE as the joinpoint.
+
+Second, the determination of the optimal joinpoint regression model (i.e., the number of joinpoints) uses Monte Carlo permutation test. We set the maximum potential number of joinpoints to 5 and the minimum potential number of joinpoints to 0. The permutation test starts with the number of joinpoints k = 0 and k_max = 5. If k ≠ k_max, set k = k+1 and continue the test until the model corresponding to k = k_max is selected as the optimal model.  
+
+Finally, we use the optimal model to calculate the annual percent change (APC) and average annual percent change (AAPC) to quantify the trend of rate changes from 1990 to 2019. The calculation formula for APC is: APC=(eβ-1) x 100%, where β is the regression coefficient of the log-linear model lny=β*x. AAPC is the weighted average of the APC of each segment through the span w of the segmented intervals, representing the overall change trend of the epidemic trend from 1990 to 2019.
+
+The desktop version of joinpoint software is not very well done. If the data processing is incorrect, it will show you an error, and the software will not give specific error reasons, which is very frustrating for beginners. Common reasons that cause the software to crash include: 1. Data is not properly sorted, 2. The path contains Chinese characters, spaces, or other special characters. etc. In addition, Mac systems are not compatible with joinpoint. Mac users can try installing a virtual machine or switching to a Windows computer.  
+
+
+Our easyGBDR package implements Joinpoint regression by calling joinpoint command-line 
+through functions. It can automatically organize data to meet the requirements of joinpoint software, and can batch model multiple cohorts, summarize and visualize the results.  
+
+It should be particularly noted here: when performing joinpoint analysis, the working path cannot have special symbols, including Chinese characters, special punctuation marks, or even spaces.
+
+## Demonstration  
+
+### Functions Related to Joinpoint Regression
+The functions related to joinpoint modeling in the easyGBDR package include:
+```{r eval=FALSE}
+# For modeling age-standardized rates
+GBDASR_aapc()
+# For modeling rates of different age groups
+GBDage_aapc()
+# For comparing two groups of aapc
+GBDaapc_pairwise()
+```
+
+Functions related to visualization of regression results include:
+```{r eval=FALSE}
+#Visualize results of single group GBDASR_aapc or GBDage_aapc
+ggjoinpoint_apc
+#Visualize results of multiple groups GBDASR_aapc or GBDage_aapc
+ggjoinpoint_compare
+```
+
+### Data Requirements     
+
+When performing joinpoint regression analysis with GBDASR_aapc or GBDage_aapc functions, 30 years of data are required; in addition, the GBDASR_aapc function requires ASR in the provided data, and the GBDage_aapc function requires age-specific rates, i.e., rates for each age group (age selects each age group, metric selects Rate).  
+
+Some Lancet sub-journals have performed stratified modeling for 1990-1999, 2000-2009, and 2010-2019, obtaining 3 AAPC values respectively. Our function will automatically calculate the AAPC values for these three intervals without needing to split the data and calculate separately.   　
+
+## Notes    
+
+It should be particularly noted here that our easyGBDR package essentially also calls joinpoint software for analysis. The working path cannot have special symbols, including Chinese characters, special punctuation marks, or even spaces; but we have built-in automatic sorting programs that can organize data into the format required by joinpoint.  
+
+```{r eval=F}
+# Check if the path has special characters
+getwd()
+```
+
+### Modeling  
+
+Here we demonstrate with eye injury disease burden data, using Age-standardized rate data for modeling:  
+
+```{r eval=FALSE}
+
+# 1. Select the data needed for modeling
+data <- read.csv('IHME-GBD_2019_DATA-9bf5eaf2-1.csv')
+
+# 2. Modeling
+results1 <- GBDASR_aapc(
+  data=data,#Specify data, the data needs to contain ASR data, can include data from various age groups
+  # Specify the model as a log model, GBD data all use log models
+  model = "ln",
+  #Default maximum potential number of joinpoints is 5
+  joinpoints = 5, 
+  # Whether the data contains rei, if not, choose F
+  rei_included = F,
+  # Whether to calculate 95% confidence interval
+  CI = TRUE,
+  # Number of decimal places to retain
+  digits = 2,
+  # How to connect the lower and upper of the interval
+  sep = " to ",
+  # Whether the data has constant variance:
+  # If you only select val data for modeling, choose constant variance, T;
+  # If you want to make full use of the interval information of the model, choose non-constant variance, F;
+  constant_variance = F
+)
+```
+
+The following text appears in the R console indicating that the model has finished running:  
+
+![](D:/BaiduSyncdisk/2.课题/easy GBDR写作/easyGBDRdocument/joinpoint_asr.png)
+
+Of course, if you want to do joinpoint regression for different age groups, you can choose age-specific rate data for modeling:  
+
+```{r eval=FALSE}
+# 2. Modeling
+results2 <- GBDage_aapc(
+  data = data,#Specify data, the data needs to contain data from various age groups, can include ASR data
+  model = "ln",# Specify the model as a log model, GBD data all use log models
+  #Default maximum potential number of joinpoints is 5
+  joinpoints = 5, 
+  # Whether the data contains rei, if not, choose F
+  rei_included = F,
+  # Whether to calculate 95% confidence interval
+  CI = TRUE,
+  # Number of decimal places to retain
+  digits = 2,
+  # How to connect the lower and upper of the interval
+  sep = " to ",
+  # Whether the data has constant variance:
+  # If you only select val data for modeling, choose constant variance, T;
+  # If you want to make full use of the interval information of the model, choose non-constant variance, F;
+  constant_variance = F
+)
+```
+
+If you want to compare whether there is a statistical difference between 2 aapc, you can use GBDaapc_pairwise() for comparison
+```{r eval=FALSE}
+# Modeling
+# Parameter description
+# data	 Original GBD data
+# compare_variable	 Grouping basis for comparing two groups, must be selected from c('location','measure','cause','age','sex','rei')
+# measure_name	 measure name of original GBD data
+# location_name	 location name of original GBD data
+# cause_name	 cause name of original GBD data
+# sex_name	 sex name of original GBD data
+# age_name	 age name of original GBD data
+# rei_name	 rei name of original GBD data, if there is no rei variable, please fill in NULL
+# joinpoints	 Maximum number of joinpoints
+# constant_variance	 Whether the data has constant variance, if you want to make full use of the interval information of the model, choose non-constant variance, F; if you want to make full use of the interval information of the model, choose non-constant variance, F;
+# pairwise	 Comparison method, must be selected from c('parallel','coincident')
+results3 <- GBDaapc_pairwise(
+  data=data,
+  compare_variable = "location",
+  measure_name = "Deaths",
+  location_name = c("High-middle SDI", "Low-middle SDI"),
+  cause_name = "All causes",
+  sex_name = "Both",
+  age_name = "Age-standardized",
+  rei_name = "All risk factors",
+  joinpoints = 3,
+  # Whether the data has constant variance:
+  # If you only select val data for modeling, choose constant variance, T;
+  # If you want to make full use of the interval information of the model, choose non-constant variance, F;
+  constant_variance = T,
+  # You can choose parallel or coincident, specific principles can refer to the joinpoint official website
+  pairwise = "parallel"
+)
+```
+### Result Export and Visualization  
+
+Earlier we generated result1 (joinpoint result of ASR) and result2 (joinpoint result of age-specific rate). The results are stored in memory in list format. We can click result1 in the environment variable window to view:   
+
+![](D:/BaiduSyncdisk/2.课题/easy GBDR写作/easyGBDRdocument/joinpoint_result.png)
+
+The result1 list contains four elements: AAPC, AAPC_Range, APC, data, y, and a label. Among them, AAPC is the AAPC of the optimal model for all years (1990~2019); AAPC_Range is the AAPC of the optimal model for three intervals (1990-1999, 2000-2009, 2010-2019); APC is the APC result of the optimal model for all years (1990~2019); data is the original data, and label is "ASR" indicating that this result was made using ASR (age-standardized rate) data.  
+
+We can write out the results one by one, and with a little organization, we can make a table needed for the paper:      
+```{r eval=FALSE}
+# Example, write out AAPC:
+AAPC <- results1$AAPC
+write.csv(AAPC,"AAPC.csv",row.names = F)
+# Similarly, you can write out the results of AAPC_Range and APC
+```
+
+In result3, the difference from the previous 2 results is that it has many more comparison results. The specific comparison results of 2 AAPCs are mainly in the comparison result, with specific p-values
+
+![](D:/BaiduSyncdisk/2.课题/easy GBDR写作/easyGBDRdocument/GBDaapc_pairwise.jpg)
+
+We can use the following code to view the content
+```{r eval=FALSE}
+# Example, view comparison results:
+results3[["comparison result"]]
+```
+
+
+![](D:/BaiduSyncdisk/2.课题/easy GBDR写作/easyGBDRdocument/GBDaapc_pairwise.png)
+
+P.Value is the result we want
+
+The visualization of the joinpoint model generally uses line charts:  
+
+```{r eval=F}
+ggjoinpoint_apc(
+  data=results1,
+  location_name = "China",
+  measure_name = "Incidence",
+  cause_name = "Foreign body in eyes",
+  sex_name = "Both",
+  age_name = "Age-standardized",
+  rei_name = NULL,
+  facet_name = "you can write down what you want here",
+  point_color = "black",
+  joinpoint_color = "black",
+  line_size = 1
+)
+```
+![](D:/BaiduSyncdisk/2.课题/easy GBDR写作/easyGBDRdocument/joinpoint_apc_fig.png)
+
+
+You can also display results from different groups simultaneously for easy comparison (it is not recommended to put too much data here, as it will be too dense and not visually appealing):  
+```{r eval=F}
+ggjoinpoint_compare(
+  data=results1,
+  location_name = "China",
+  measure_name = "Incidence",
+  cause_name = "Foreign body in eyes",
+  sex_name = c("Both","Male","Female"),
+  age_name = "Age-standardized",
+  rei_name = NULL,
+  facet_name = "you can write down what you want here",
+  color_name = pal_lancet("lanonc")(9)[1:3], # The number of color_name should correspond to the number of groups you are comparing
+  shape_name = c(14, 15, 16), # The number of shape_name should correspond to the number of groups you are comparing
+  line_size = 1
+)
+```
+
+![](D:/BaiduSyncdisk/2.课题/easy GBDR写作/easyGBDRdocument/joinpoint_compare.png)
+
+(Do you know why the above figure does not use different colors and shapes to distinguish different groups? Because my R is version 4.2.0, you only need to install a higher version of R to fix this bug.)
+
+\newpage  
+
+# APC Model: apc_ie Model   
+
+## Principles    
+
+The basic expression of the APC model is: 
+
+   $ln(Y_{abc}) = \mu + \alpha_a+\beta_b+\gamma_c+\epsilon_{abc}$  
+   
+The APC model is often used to decompose the age, period, and cohort effects of epidemic trends. Because these three variables have complete collinearity (i.e., birth cohort = period - age), the unique solution of the coefficients of the three variables cannot be obtained using the least squares method of conventional multiple linear regression (it can be understood as trying to solve a system of three equations with one unknown but only two conditions are given).   
+
+In order to obtain unbiased solutions for the three variables, many statistical experts artificially make assumptions about the model or add additional constraints (equivalent to providing another condition for the equation, but this condition is subjective). Different assumptions or constraints produce different APC models. The APC model using the Intrinsic Estimator method is one of them.  
+
+The principle of the APC_ie model is a bit complex. Those who are interested can check the book by the model's inventor Yang Yang (you can download it from z-library, or if you really can't download it, you can ask Teacher Li Siqi for it).    
+
+![](D:/BaiduSyncdisk/2.课题/easy GBDR写作/easyGBDRdocument/apc_ie_book.png)
+
+Yang Yang's apc_ie model can currently only be built through Stata, and our easyGBDR package also implements it by calling Stata.  
+Here is the Stata code for this model:
+
+First, install the apc package in Stata:  
+$ ssc install apc $  
+
+Then, use the following Stata statement to build the model:
+
+apc_ie $age(age) period(period) cohort(cohort) family(poisson) link(log) exposure(population)$  
+ 
+Among them, apc_ie is the main command and remains unchanged. The parameters in the brackets of age() period() cohort() need to be specified one by one, filling in the column names of the age, period, and cohort columns of the data respectively; if these three columns in the table are age, period, cohort respectively, then they should be filled like this: age(age) period(period) cohort(cohort). It should be noted that age, period, and cohort in the data need to satisfy the cohort=period-age relationship, and all are at 5-year intervals.
+
+At family(), you need to specify the probability distribution function of Y. We usually assume that the number of cases (or prevalence, deaths) of a certain disease follows a Poisson distribution, so we fill in poisson here; the link function of the Poisson distribution link(log) remains unchanged; at exposure, you need to fill in the exposed population, and we fill in the corresponding population here.   
+
+If you use Stata to do the apc_ie model yourself, you first need to organize the data so that the intervals within age, period, and cohort are all 5 years. In addition, a, p, and c must satisfy the cohort=period-age relationship.  
+
+We can quickly complete the construction of the apc_ie model through the GBDapc_ie() function of the easyGBDR package. This function can automatically organize the data downloaded from GBD into the data format required by the Stata apc_ie model, and then call Stata software to complete the modeling.  
+
+Before this, your computer needs to install Stata software (if your college has purchased genuine software, you can use it with confidence; if not, you can spend about ten yuan to buy one on Taobao; but Stata is commercial software, and using pirated software has certain risks), and then use the following code to configure the Stata path before you can start modeling:   
+
+```{r eval=FALSE}
+## Note: Stata cannot be installed on the system disk, otherwise R cannot call Stata
+config_stata(path, version = 15, stata_type = c("SE", "MP", "IC"))
+```
+
+
+## Demonstration   
+
+### Functions Related to apc_ie Model   
+
+```{r eval=FALSE}
+# For configuring Stata path
+config_stata()
+
+# Before modeling, plot to show the changes of the disease in the three dimensions of age, period, and cohort pairwise
+apc <- GBDapc_interact(data=data)#The data input here is the data downloaded from GBD
+ggapc_interaction(data=apc)#The data input here is the data converted by the above function
+
+# Call Stata to build apc_ie model  
+GBDapc_ie(data=data) #The data here is the data downloaded from GBD
+
+```
+
+
+### Data Requirements   
+
+The GBDapc_ie model requires 30 years of complete year data, age must include age data in 5-year segments; metric must include Number; val must be greater than 0.
+
+### Modeling  
+
+```{r eval=FALSE}  
+result_apc_ie <- GBDapc_ie(
+  data = data,  #GBD downloaded data, must meet the above data requirements
+  startage = 20, 
+  endage = 95,
+  startyear = 1990,
+  measure_name = "Incidence",
+  cause_name = "Foreign body in eyes",
+  sex_name = "Both",
+  location_name = "Global",
+  rei_name = NULL
+)
+```
+
+The results printed by the model are difficult to write out and need to be extracted manually. Moreover, further code is needed to display the effects of this model (if you want to learn more about data processing and modeling details, including subsequent visualization of model effects, you can ask Teacher Li Siqi for the original code and demonstration data).
+
+## Usage Recommendations    
+
+The apc_ie model can only calculate the independent effects of age, period, and cohort of disease epidemic trends, as well as the change trends of the three effects; if you want to obtain more disease trend information through the APC model (such as net drift), it is recommended to use the apc_web model below instead of the apc_ie model.  
+
+\newpage
+
+# APC Model: apc_web Model  
+
+## Principles  
+
+The apc_web model is an APC model developed by Philip S. Rosenberg, David P. Check, and William F. Anderson from the Biostatistics Branch of the National Cancer Institute. They also made this model into a web tool. Although we use apc_web to represent the model they developed, it does not mean that their model is called this name. We just gave it this name to distinguish it from the apc_ie model.  
+
+The principle of the apc_web model is more complex and harder to understand than the apc_ie model. The effects that can be obtained from this model include age effect (divided into Cross-Sectional and Longitudinal age effect), Period Effects (also known as Deviations, Period RR), and cohort effect (divided into Age-specific temporal trends and Local Drifts).  
+
+If you are interested in the principles of the apc_web model, you can log in to this [**web tool**](http://analysistools.nci.nih.gov/apc/), or download the corresponding paper to read^[Rosenberg PS, Check DP, Anderson WF. A Web Tool for Age-Period-Cohort Analysis of Cancer Incidence and Mortality Rates. Cancer Epidemiology, Biomarkers Prevent 2014:23:2296, PMID: 25146089].  
+
+The main functions of the apc_web model web tool include:  
+
+![](D:/BaiduSyncdisk/2.课题/easy GBDR写作/easyGBDRdocument/apc_web_key_function.png)  
+
+The apc_web model is a web tool developed based on R. We obtained the source code of the model and wrote data organization script code and subsequent model visualization scripts for it, integrating it into our easyGBDR package.   
+
+## Demonstration   
+
+### Functions Related to apc_web Model   
+
+```{r eval=FALSE}
+# For modeling
+GBDapc_web()
+
+# For displaying model effects:
+ggAgeDeviations()
+ggCohDeviations()
+ggcohortRR()
+ggCrossAge()
+ggdrift()
+ggLong2CrossRR()
+ggLongAge()
+ggPerDeviations()
+ggperiodRR()
+ggTemporalTrends()
+```
+
+### Data Requirements  
+The GBDapc_web model requires 30 years of complete year data, age must include age data in 5-year segments; metric must include Number; val must be greater than 0.
+
+### Modeling   
+
+```{r eval=F}
+# 1. Filter data
+temp <- df |> 
+  # For demonstration, China is selected, multiple regions can be done at the same time
+  filter(location=="China") |> 
+  filter(measure=="Incidence") #Multiple indicators can be done
+
+# 2. Modeling
+result_apc_web <- GBDapc_web(
+  data = temp, 
+  startyear = 1990,
+  reference_age = 15,
+  reference_year = 1990,
+  measure_name = "Incidence",#If there are multiple indicators, fill in a vector similar to sex_name
+  cause_name = "Foreign body in eyes",
+  sex_name = c("Both","Male","Female"),
+  location_name = "China",
+  rei_name = NULL
+)
+
+```
+
+After modeling, there is an additional list named result_apc_web in the environment variable window. We can click to view it:  
+
+![](D:/BaiduSyncdisk/2.课题/easy GBDR写作/easyGBDRdocument/apc_web_model.png)  
+We can also extract data and write it out:  
+
+```{r eval=FALSE}
+# Example, extract netdrift
+netdrift <- result_apc_web$NetDrift
+
+netdrift
+```
+![](D:/BaiduSyncdisk/2.课题/easy GBDR写作/easyGBDRdocument/netdrift.png)    
+
+You can also use visualization functions to display the effects:  
+```{r eval=FALSE}
+# Taking netdrift as an example 
+ggdrift(
+  data = result_apc_web,
+  CI = T,
+  group_name = "sex",
+  line_size = 1,
+  measure_name = "Incidence",
+  cause_name = "Foreign body in eyes",
+  sex_name = c("Both","Male","Female"),
+  location_name = "China",
+  rei_name = NULL
+)
+```
+
+![](D:/BaiduSyncdisk/2.课题/easy GBDR写作/easyGBDRdocument/netdrift_fig.png)  
+
+
+The horizontal solid line in the figure represents the netdrift of the apc_web model, and the horizontal dashed line represents the confidence interval of netdrift (netdrift reflects the global change and represents the overall average annual percent change, AAPC).  
+
+Other effects can also be displayed using the corresponding plotting functions, and the plotting functions can be overlaid with ggplot2's layer syntax, including facet functionality.    
+
+## Notes  
+
+Everyone must read more related literature, think deeply, and strive to understand all the effects of the apc_web model!  
+
+
+\newpage
+
+# Decomposition analysis    
+
+## Principles     
+The purpose of decomposition analysis is to quantitatively analyze the driving factors that cause changes in a certain indicator, that is, to obtain the effect of that driving factor. For disease burden, the effect obtained by decomposition analysis refers to the impact of a factor change on the total DALY change when the year changes while other driving factors remain unchanged. Moreover, the sum of the effects of all driving factors should exactly equal the change in DALY.   
+
+For example, the global disease burden caused by cardiovascular diseases has increased rapidly in the past 30 years. We want to know what proportion of the increased disease burden in the past 30 years comes from population growth, what proportion comes from population aging, and what proportion comes from epidemiological changes? Decomposition analysis can provide a static and intuitive display.  
+
+Our easyGBDR package has two decomposition analysis models.  
+
+One is the decomposition analysis method from Das Gupta^[Das Gupta P. Standardization and decomposition of rates: a user's manual. Washington, DC: US Department of Commerce Economics and Statistics Administration, 1993]; the other is the HGQ method recently published in PLOS Medicine^[Cheng X, Yang Y, Schwebel DC, Liu Z, Li L, Cheng P, et al. (2020) Population ageing and mortality during 1990–2017: A global decomposition analysis.PLoS Med 17(6): e1003138. https://doi.org/10.1371/journal.pmed.1003138]
+
+Das Gupta has explained the principles of decomposition analysis in detail in the book **STANDARDIZATION AND DECOMPOSITION OF RATES FROM CROSS-CLASSIFIED DATA**, and step by step from the decomposition of one factor to the decomposition of multiple factors. Personally, I believe that to understand the principles of Das Gupta decomposition analysis, one must first understand age standardization. I strongly recommend that teachers doing this research read this book in depth. (You can ask Teacher Li Siqi for this book!)    
+
+## Demonstration  
+
+### Functions Related to Decomposition Analysis   
+```{r eval=FALSE}
+# Modeling  
+GBDdecomposition()#Traditional method
+GBDdecomposition_HGQ()#HGQ method
+GBDdecomposition_servity()
+GBDdecomposition_subcategory()
+
+# Write model results as table
+GBDdecomposition_table()
+
+# Visualize model results with plots
+ggdecomposition()
+```
+
+
+### Data Requirements  
+Decomposition analysis requires data from the beginning and end years (e.g., 1990, 2019), age data in 5-year groups, and metric must include Number and Rate (i.e., Number and Rate for each age group). Data for All ages and Age standardized rate are not needed for calculation, but including these two will not cause errors. Sex data needs to select Both. This function can simultaneously calculate decomposition analysis results for multiple regions, so location can have multiple countries or regions at the same time.      
+
+
+### Modeling  
+```{r eval=FALSE}
+# 1. Select the data needed for calculation
+temp <- df |> 
+  filter(location%in%c("Global","High SDI",
+                       "High-middle SDI","Middle SDI",
+                       "Low-middle SDI","Low SDI",
+                       "Andean Latin America","Australasia",
+                       "Caribbean","Central Asia","Central Europe",
+                       "Central Latin America","Central Sub-Saharan Africa",
+                       "East Asia","Eastern Europe","Eastern Sub-Saharan Africa",
+                       "High-income Asia Pacific","High-income North America",
+                       "North Africa and Middle East","Oceania","South Asia",
+                       "Southeast Asia","Southern Latin America",
+                       "Southern Sub-Saharan Africa","Tropical Latin America",
+                       "Western Europe","Western Sub-Saharan Africa")) |>
+  filter(sex=="Both") |> 
+  filter(!age%in%c("All ages","Age-standardized")) 
+
+# 2. Decomposition analysis, batch decomposition for multiple regions and multiple measurement indicators
+#Note the percent parameter: the calculation basis for the change percentage, from c("overall difference","byear"), "overall difference" calculation basis is the percentage of overall change, adding up to 100%, "byear" calculation basis is the change percentage on the baseline data byear (adding up to the change rate compared to the compareyear and byear data)
+decomp_result <- GBDdecomposition(
+  data=temp,
+  byear = 1990,
+  compareyear = 2019,
+  startage = 15, #Minimum value of the minimum age group
+  endage = 60,    #Minimum value of the maximum age group
+  percent = 'overall difference'
+)
+
+# The GBDdecomposition_HGQ() method is the same:
+decomp_result_HGQ <- GBDdecomposition_HGQ(
+  data=temp,
+  byear = 1990,
+  compareyear = 2019,
+  startage = 15,
+  endage = 60,
+  percent = 'overall difference' 
+)
+```
+
+
+We can organize the model results into a table and write them out:  
+```{r eval=FALSE}
+decom_table <- GBDdecomposition_table(
+  data=decomp_result,
+  digits = 2,
+  measure_name=c("Prevalence","Incidence",
+                 "DALYs (Disability-Adjusted Life Years)","YLDs (Years Lived with Disability)"),
+  location_name=c("Global","High SDI",
+                  "High-middle SDI","Middle SDI",
+                  "Low-middle SDI","Low SDI",
+                  "Andean Latin America","Australasia",
+                  "Caribbean","Central Asia","Central Europe",
+                  "Central Latin America","Central Sub-Saharan Africa",
+                  "East Asia","Eastern Europe","Eastern Sub-Saharan Africa",
+                  "High-income Asia Pacific","High-income North America",
+                  "North Africa and Middle East","Oceania","South Asia",
+                  "Southeast Asia","Southern Latin America",
+                  "Southern Sub-Saharan Africa","Tropical Latin America",
+                  "Western Europe","Western Sub-Saharan Africa"),
+  sex_name="Both",
+  rei_name = NULL,
+  cause_name="Foreign body in eyes"
+)
+
+decom_table
+```
+
+![](D:/BaiduSyncdisk/2.课题/easy GBDR写作/easyGBDRdocument/decom_table.png)  
+
+You can also plot to visualize the decomposition analysis results:  
+
+```{r eval=FALSE}
+ggdecomposition(
+  data=decomp_result,#Note that this is the model result, not a table
+  measure_name="Incidence",
+  location_name=c("Global","High SDI",
+                  "High-middle SDI","Middle SDI",
+                  "Low-middle SDI","Low SDI",
+                  "Andean Latin America","Australasia",
+                  "Caribbean","Central Asia","Central Europe",
+                  "Central Latin America","Central Sub-Saharan Africa",
+                  "East Asia","Eastern Europe","Eastern Sub-Saharan Africa",
+                  "High-income Asia Pacific","High-income North America",
+                  "North Africa and Middle East","Oceania","South Asia",
+                  "Southeast Asia","Southern Latin America",
+                  "Southern Sub-Saharan Africa","Tropical Latin America",
+                  "Western Europe","Western Sub-Saharan Africa"),
+  sex_name="Both",
+  rei_name = NULL,
+  cause_name="Foreign body in eyes",
+  percent = F  #Whether to draw a percentage chart, note that the percentage chart here requires percent='byear' in the decomposition analysis, otherwise it will report an error
+
+
+)
+```
+
+![](D:/BaiduSyncdisk/2.课题/easy GBDR写作/easyGBDRdocument/分解分析结果_fig.png)
+As shown in the figure above, the black dots show the overall difference, that is, the number of new cases in 2019 compared to 1990. The bar charts of different colors represent the contributions of three factors to the increase in the number of new cases of foreign body injuries in the eyes: changes in age structure, population growth, and changes in epidemic intensity (rate).    
+
+If using GBDdecomposition_servity() or GBDdecomposition_subcategory() to decompose the growth of burden into four factors, you need to have both the parent disease and disease subcategories at the same time.  
+
+For example, if I want to know the contributions of population growth, population aging, changes in epidemic intensity, and changes in common disease causes to the burden of blindness and vision impairment, I can use GBDdecomposition_subcategory() for analysis:
+```{r eval=FALSE}
+GBDdecomposition_subcategory(
+  data=data1,
+  subcategory=c("Blindness and vision impairment","Cataract","Glaucoma" ……),
+  byear = 1990,
+  compareyear = 2019,
+  startage = 15,
+  endage = 60
+)
+```
+
+It should be noted that data1 is data that has both the parent disease (blindness and vision impairment) and disease subcategories (cataract, glaucoma); the subcategory parameter needs to specify a vector, the first element of the vector must be the parent disease, here it is blindness and vision impairment, followed by cataract and glaucoma as disease subcategories of the parent disease.  
+
+
+## Notes   
+
+Das Gupta wrote at the end of the book: Decomposition analysis does not suggest any causal relationship. 
+
+![](D:/BaiduSyncdisk/2.课题/easy GBDR写作/easyGBDRdocument/分解分析_书末尾.png) 
+
+\newpage 
+# Frontier Analysis    
+
+## Principles 
+   The main principles of Frontier decomposition analysis refer to Yan Xie's **Analysis of the Global Burden of Disease study highlights the global, regional, and national trends of chronic kidney disease epidemiology from 1990 to 2016**. Currently, Frontier analysis is mainly used for data where rates decrease as SDI increases, and can be used for analysis of rates at different age groups as well as ASR analysis
+
+## Demonstration 
+### Functions Related to Frontier Analysis  
+```{r eval=FALSE}
+# Modeling
+GBDfrontier()
+
+#Convert model results to table
+GBDfrontier_table()
+
+#Visualize model results
+ggfrontier()
+```
+
+### Data Requirements
+   Currently, Frontier analysis is mainly used for inter-country analysis, so the data needed is rate data containing 204 countries, and the rate data must satisfy that rates decrease as SDI increases. It can currently be used for analysis of rates at different age groups as well as ASR analysis
+
+### Modeling
+```{r eval=FALSE}
+# Data reading
+case <- read.csv('RA_nation.csv')
+# Modeling
+boostrap_DEA <-GBDfrontier(data=case,
+                           sex_name='Both',
+                           cause_name = 'Gastroesophageal reflux disease',
+                           measure_name='YLDs (Years Lived with Disability)',
+                           age_name = 'Age-standardized', #age_name can choose the age group you want to analyze, not limited to ASR
+                           rei_name = NULL,
+                           boot=100,
+                           parallel=T)
+
+
+
+#Convert model results to table
+table <- GBDfrontier_table(
+  frontier_result=boostrap_DEA, #Results of running GBDfrontier
+  data=case,   #Original data before GBDfrontier
+  digits = 2,
+  sex_name='Both',
+  cause_name = 'Gastroesophageal reflux disease',
+  measure_name='YLDs (Years Lived with Disability)',
+  age_name = "age-standardized",
+  rei_name = NULL
+)
+
+#Visualize model results
+ggfrontier(
+  boostrap_DEA,
+  smooth_span = 0.5,
+  type = "all years",  ## Select from c("all years", "single year"), corresponding to different graphs
+  high_SDI = 0.85, ## The figure shows the 5 countries with the largest frontier differences among countries with high_SDI as the threshold
+  low_SDI = 0.5  ## The figure shows the 5 countries with the smallest frontier differences among countries with low_SDI as the threshold
+)
+```
+
+### Result Display
+  GBDfrontier_table() can organize the frontier calculation results into a publishable table format
+![](D:/BaiduSyncdisk/2.课题/easy GBDR写作/easyGBDRdocument/frontier_table.png)
+
+  The figure below is a graphical display of *type = "all years"*, showing the frontier values of all 204 countries from 1990-2019
+![](D:/BaiduSyncdisk/2.课题/easy GBDR写作/easyGBDRdocument/allyear.png)
+  The figure below is a graphical display of *type = "single year"*. Red dots indicate that the rate in 2019 increased compared to 1990, blue dots indicate that the rate in 2019 decreased compared to 1990. Black font dots represent the 10 countries with the largest distance between frontier and true values. Red font dots represent the 5 countries with the largest distance between frontier and true values among countries above the high_sdi threshold. Blue font dots represent the 5 countries with the smallest distance between frontier and true values among countries below the low_sdi threshold
+  ![](D:/BaiduSyncdisk/2.课题/easy GBDR写作/easyGBDRdocument/singleyear.png)
+  
+## Notes
+   It is emphasized again: the rate data must satisfy that rates decrease as SDI increases, otherwise the analysis results will be strange. It is generally recommended for death, DALY, YLD, YLL data, and incidence and prevalence rates of some poverty-related diseases, and not recommended for incidence and prevalence rates of some affluence-related diseases.
+
+\newpage 
+# Prediction Models
+## Principles
+   Currently, the prediction models in the easyGBDR package are mainly based on two prediction models: one is Norpred, and the other is the BAPC model. Both Nordpred and BAPC models are based on the **Age-Period-Cohort (APC)** model. The theoretical basis of this model is that incidence or mortality rates are related to age structure and population size. The basis for exploring this relationship is still the generalized linear model (GLM). There are two GLMs in the Nordpred package: 1) power model, which is an exponential model. When this model was applied to cancer prediction (Moller et al.), it was considered that an exponent of 5 was best, and the nordpred package also adopted a fixed exponential model with an exponent of 5; 2) Poisson log-link model, which is also a classic model, satisfying Poisson distribution after log transformation;
+   On the above basis, the APC model can be built in the traditional probability theory framework (Nordpred), or it can be performed in the Bayesian framework, the latter being Bayesian age-period-cohort models (BAPC). There is literature mentioning an APC model with a random exponential model as a link function in the Bayesian framework, which is described in detail with specific equations and evaluation methods. It is recommended to refer to: **Verena Jürgens et al. A Bayesian generalized age–period–cohort power model for cancer projections**.
+   There is a well-known method in Bayesian inference: Markov chain, but this method is not very efficient and is relatively slow. The INLA method serves as a low computational density alternative to Markov chains for approximate Bayesian inference in latent Gaussian models. The BAPC package provides an APC model built in the INLA framework. The official website description: Package implementing Bayesian age-period-cohort models with the focus on projections. BAPC uses integrated nested Laplace approximations (INLA) for full Bayesian inference. BAPC generates age-specific and age-standardized projected rates. When interest lies in the predictive distribution, Poisson noise is automatically added.
+
+The above content refers to **https://blog.csdn.net/NickyCat/article/details/118636690**
+
+## Demonstration
+### Functions Related to Prediction Analysis  
+```{r eval=FALSE}
+# Modeling
+GBDnorpred_prediction()
+GBDbapc_prediction()
+#Visualize model results
+ggprediction_Dx()
+ggprediction_ASR()
+ggprediction_number()
+ggprediction_age_Dx()
+ggprediction_age_number()
+ggprediction_age_rate()
+```
+
+### Specific Function Demonstration 
+```{r}
+# 1. Read data
+data <-  read.csv('EC_predict.csv') %>% filter(val>0)
+
+# 2. Modeling
+## GBDbapc_prediction | GBDnorpred_prediction
+## Condition 1: The selected age must be data with 5 years as an age group: for example, to predict the mortality/incidence rate of esophageal cancer for ages 40-59, age must be "40 to 44","45 to 49","50 to 54","55 to 59"
+## Condition 2: Sex must contain Male, Female, Both data. If there is only data for one sex, you can copy that sex to other sexes, and finally only take that sex
+## Note!!!: full_age_adjusted = T is to predict data for ages 0-95. If some age group data is missing, it will automatically fill that age group data with 0
+## full_age_adjusted = F is to predict the age group data segment in the data you provide. For example, if your data only has age groups 40-59, then in this case it will only predict the results for age groups 40-59
+bapc_result <- GBDbapc_prediction(
+  data=data,
+  measure_name = c("Incidence",'Deaths'),
+  cause_name = "Esophageal cancer",
+  location_name = "Global",
+  rei_name = NULL,
+  By_sex = T,
+  predyear = 2030,
+  full_age_adjusted = T,
+  rate_lessen = NULL
+)
+
+norpred_result <- GBDnorpred_prediction(
+  data=data,
+  measure_name = c("Incidence",'Deaths'),
+  cause_name = "Esophageal cancer",
+  location_name = c("Global", "China"),
+  rei_name = NULL,
+  By_sex = T,
+  predyear = 2030,
+  full_age_adjusted = T
+)
+```
+
+Below is the result of running GBDnorpred_prediction. ASR_Number is the ASR, crude rate, and total number corresponding to the predicted population. age_specific_rate is the crude rate of different age groups in the predicted population. age_specific_projection is the number of diseases in different age groups in the predicted population.
+![](D:/BaiduSyncdisk/2.课题/easy GBDR写作/easyGBDRdocument/Norpred.png)
+
+Below is the result of running GBDbapc_prediction. ASR is the ASR corresponding to the predicted population, crude_rate is the crude rate corresponding to the predicted population, all_age_projection is the number of diseases corresponding to the predicted population, age_standardized_projection is the standardized number of diseases corresponding to the predicted population (ASR*population, not very useful for us), age_specific_rate is the crude rate of different age groups in the predicted population, age_specific_projection is the number of diseases in different age groups in the predicted population.
+![](D:/BaiduSyncdisk/2.课题/easy GBDR写作/easyGBDRdocument/bapc_prediction.png)
+
+### Result Visualization: Demonstration Using GBDnorpred_prediction() Results as an Example
+```{r}
+#Simultaneously display the number of diseases and ASR of the predicted population
+ggprediction_Dx(
+  data=norpred_result, ## Results of running GBDnorpred_prediction or GBDbapc_prediction
+  predict_start = 2020, ## Draw a vertical line for the year when prediction starts
+  ratio = 'auto', ## Automatic calculation of dual coordinate axes, or you can fill in a number according to your situation (ratio of two coordinate axes)
+  CI = F,  ## Whether to draw confidence interval
+  group_name = "location", ## Grouping variable
+  location_name = c("Global", "China"), ##Filter by location_name from GBDnorpred_prediction or GBDbapc_prediction and then display
+  measure_name = "Deaths", ##Filter by measure_name from GBDnorpred_prediction or GBDbapc_prediction and then display
+  cause_name = "Esophageal cancer", ##Filter by cause_name from GBDnorpred_prediction or GBDbapc_prediction and then display
+  rei_name = NULL, ##Filter by rei_name from GBDnorpred_prediction or GBDbapc_prediction (if none, fill NULL) and then display
+  sex_name = c("Both",'Male','Female') ##Filter by sex_name from GBDnorpred_prediction or GBDbapc_prediction and then display
+) + facet_wrap(.~sex) ## Since our sex_name and location_name have length greater than 1, and location_name is the group, we need to use sex as facet, otherwise data will overlap or error
+```
+```{r}
+#Display the number of diseases in the predicted population
+ggprediction_number(
+  data=norpred_result, ## Results of running GBDnorpred_prediction or GBDbapc_prediction
+  predict_start = 2020, ## Draw a vertical line for the year when prediction starts
+  group_name = "location", ## Grouping variable
+   CI = F, ## Whether to draw confidence interval
+  location_name = c("Global", "China"), ##Filter by location_name from GBDnorpred_prediction or GBDbapc_prediction and then display
+  measure_name = "Deaths", ##Filter by measure_name from GBDnorpred_prediction or GBDbapc_prediction and then display
+  cause_name = "Esophageal cancer", ##Filter by cause_name from GBDnorpred_prediction or GBDbapc_prediction and then display
+  rei_name = NULL, ##Filter by rei_name from GBDnorpred_prediction or GBDbapc_prediction (if none, fill NULL) and then display
+  sex_name = c("Both",'Male','Female') ##Filter by sex_name from GBDnorpred_prediction or GBDbapc_prediction and then display
+) + facet_wrap(.~sex) ## Since our sex_name and location_name have length greater than 1, and location_name is the group, we need to use sex as facet, otherwise data will overlap or error
+```
+
+
+```{r}
+#Display ASR of the predicted population
+ggprediction_ASR(
+  data=norpred_result, ## Results of running GBDnorpred_prediction or GBDbapc_prediction
+  predict_start = 2020, ## Draw a vertical line for the year when prediction starts
+  group_name = "location", ## Grouping variable
+   CI = F, ## Whether to draw confidence interval
+  location_name = c("Global", "China"), ##Filter by location_name from GBDnorpred_prediction or GBDbapc_prediction and then display
+  measure_name = "Deaths", ##Filter by measure_name from GBDnorpred_prediction or GBDbapc_prediction and then display
+  cause_name = "Esophageal cancer", ##Filter by cause_name from GBDnorpred_prediction or GBDbapc_prediction and then display
+  rei_name = NULL, ##Filter by rei_name from GBDnorpred_prediction or GBDbapc_prediction (if none, fill NULL) and then display
+  sex_name = c("Both",'Male','Female') ##Filter by sex_name from GBDnorpred_prediction or GBDbapc_prediction and then display
+) + facet_wrap(.~sex) ## Since our sex_name and location_name have length greater than 1, and location_name is the group, we need to use sex as facet, otherwise data will overlap or error
+```
+
+
+```{r}
+#Display the number of diseases and disease rates for different age groups in the prediction (dual coordinate axes)
+ggprediction_age_Dx(
+  data=norpred_result, ## Results of running GBDnorpred_prediction or GBDbapc_prediction
+  predict_start = 2020, ## Draw a vertical line for the year when prediction starts
+  group_name = "age", ## Grouping variable
+   CI = F, ## Whether to draw confidence interval
+  ratio = 'auto', ## Automatic calculation of dual coordinate axes, or you can fill in a number according to your situation (ratio of two coordinate axes)
+  location_name = "Global", ##Filter by location_name from GBDnorpred_prediction or GBDbapc_prediction and then display
+  measure_name = "Deaths", ##Filter by measure_name from GBDnorpred_prediction or GBDbapc_prediction and then display
+  cause_name = "Esophageal cancer", ##Filter by cause_name from GBDnorpred_prediction or GBDbapc_prediction and then display
+  rei_name = NULL, ##Filter by rei_name from GBDnorpred_prediction or GBDbapc_prediction (if none, fill NULL) and then display
+  sex_name = c("Both",'Male','Female'), ##Filter by sex_name from GBDnorpred_prediction or GBDbapc_prediction and then display
+  age_name = c("40 to 44", "45 to 49", "50 to 54")
+) + facet_wrap(.~sex) ## Since our sex_name and location_name have length greater than 1, and location_name is the group, we need to use sex as facet, otherwise data will overlap or error
+```
+
+```{r}
+#Display the number of diseases for different age groups in the prediction
+ggprediction_age_number(
+  data=norpred_result, ## Results of running GBDnorpred_prediction or GBDbapc_prediction
+  predict_start = 2020, ## Draw a vertical line for the year when prediction starts
+  group_name = "age", ## Grouping variable
+   CI = F, ## Whether to draw confidence interval
+  location_name = "Global", ##Filter by location_name from GBDnorpred_prediction or GBDbapc_prediction and then display
+  measure_name = "Deaths", ##Filter by measure_name from GBDnorpred_prediction or GBDbapc_prediction and then display
+  cause_name = "Esophageal cancer", ##Filter by cause_name from GBDnorpred_prediction or GBDbapc_prediction and then display
+  rei_name = NULL, ##Filter by rei_name from GBDnorpred_prediction or GBDbapc_prediction (if none, fill NULL) and then display
+  sex_name = c("Both",'Male','Female'), ##Filter by sex_name from GBDnorpred_prediction or GBDbapc_prediction and then display
+  age_name = c("40 to 44", "45 to 49", "50 to 54")
+) + facet_wrap(.~sex) ## Since our sex_name and location_name have length greater than 1, and location_name is the group, we need to use sex as facet, otherwise data will overlap or error
+```
+
+```{r}
+#Display disease rates for different age groups in the prediction
+ggprediction_age_rate(
+  data=norpred_result, ## Results of running GBDnorpred_prediction or GBDbapc_prediction
+  predict_start = 2020, ## Draw a vertical line for the year when prediction starts
+  group_name = "age", ## Grouping variable
+   CI = F, ## Whether to draw confidence interval
+  location_name = "Global", ##Filter by location_name from GBDnorpred_prediction or GBDbapc_prediction and then display
+  measure_name = "Deaths", ##Filter by measure_name from GBDnorpred_prediction or GBDbapc_prediction and then display
+  cause_name = "Esophageal cancer", ##Filter by cause_name from GBDnorpred_prediction or GBDbapc_prediction and then display
+  rei_name = NULL, ##Filter by rei_name from GBDnorpred_prediction or GBDbapc_prediction (if none, fill NULL) and then display
+  sex_name = c("Both",'Male','Female'), ##Filter by sex_name from GBDnorpred_prediction or GBDbapc_prediction and then display
+  age_name = c("40 to 44", "45 to 49", "50 to 54")
+) + facet_wrap(.~sex) ## Since our sex_name and location_name have length greater than 1, and location_name is the group, we need to use sex as facet, otherwise data will overlap or error
+```
+
+\newpage 
+# Health Inequality Analysis   
+## Principles
+
+## Demonstration
+### Functions Related to Health Inequality Analysis  
+```{r eval=FALSE}
+# For configuring Stata path
+config_stata()
+# Modeling
+GBDslope_index()
+GBDconcentration_index()
+GBDconcentration_compare()
+#Visualize model results
+ggslope_index()
+ggconcentration_index()
+```
+
+### First-time Use of GBDconcentration_index Requires Configuring Stata Path
+```{r eval=FALSE}
+## Note!!: Stata cannot be installed on the system disk, otherwise R cannot call Stata
+# path: folder path where exe or mac executable program is located
+# version: Stata version number
+# stata_type: Stata type
+config_stata(path, version = 15, stata_type = c("SE", "MP", "IC"))
+
+```
+
+### Calculate Slope Index and Plot
+```{r eval=FALSE}
+# Data reading
+data <- read.csv("all causes.csv",header = T)
+
+# Calculate slope index
+## Must have 204 countries
+## all_age_range: If it is original data downloaded from the GBD website, set all_age_range to NULL. If it is data for partial age groups calculated through GBDage_recal/GBDrei_age_recal, please provide the upper and lower limits of the age group, ensuring that the values in all_age_range are the lower limit values in a 5-year age structure. For example, for a 20-49 year old population, set your all_age_range to c(20,45)
+res <- GBDslope_index(data, ## Original GBD data
+                      all_age_range=NULL, ##This parameter is mainly used to calculate the slope index for specific age structures
+                      SDI=T, ##Whether to calculate the slope index for 5 SDI regions
+                      GBDregion=T, ##Whether to calculate the slope index for 19 GBD regions
+                      SuperGBDregion=T) ##Whether to calculate the slope index for 7 SuperGBD regions
+
+# Slope index plotting
+ggslope_index(data=res,
+              model='rlm', ##Model selection, can choose lm or rlm based on ncvTest_p results
+              color_name=c("#6699FF","#990000"), ##Color selection
+              group_name='year', ## Grouping variable for comparing two groups
+              region_name='All included', ##Filter variable
+              measure_name='DALYs (Disability-Adjusted Life Years)', ##Filter variable
+              sex_name='Both', ##Filter variable
+              cause_name='All causes', ##Filter variable
+              rei_name=NULL, ##Filter variable
+              age_name='All ages', ##Filter variable
+              year_name=c(1990,2019), ##Filter variable
+              country_label='China', ##Label country names in the figure
+              population_count=10e6) ##Population label
+```
+
+In the figure below, the main results are in the slope dataset, including two results: lm (ordinary linear model) and rlm (robust linear model). The results of the two models mainly refer to the heteroscedasticity test (ncvTest_p). If the test result P-value is less than 0.05, there is heteroscedasticity, consider using the rlm (robust linear model) result; if the test result P-value is greater than 0.05, there is no heteroscedasticity, consider using the lm (ordinary linear model) result.
+![](D:/BaiduSyncdisk/2.课题/easy GBDR写作/easyGBDRdocument/GBDslope_index.png)
+The figure below shows the results of the slope index
+![](D:/BaiduSyncdisk/2.课题/easy GBDR写作/easyGBDRdocument/ggslope_index.png)
+
+
+### Calculate Concentration Index and Plot (Requires Calling Stata Function)
+```{r eval=FALSE}
+# Data reading
+data <- read.csv("all causes.csv",header = T)
+
+# Calculate concentration index
+## Must have 204 countries
+## all_age_range: If it is original data downloaded from the GBD website, set all_age_range to NULL. If it is data for partial age groups calculated through GBDage_recal/GBDrei_age_recal, please provide the upper and lower limits of the age group, ensuring that the values in all_age_range are the lower limit values in a 5-year age structure. For example, for a 20-49 year old population, set your all_age_range to c(20,45)
+res <- GBDconcentration_index(data, ## Original GBD data
+                      all_age_range=NULL, ##This parameter is mainly used to calculate the slope index for specific age structures
+                      SDI=T, ##Whether to calculate the slope index for 5 SDI regions
+                      GBDregion=T, ##Whether to calculate the slope index for 19 GBD regions
+                      SuperGBDregion=T) ##Whether to calculate the slope index for 7 SuperGBD regions
+
+# Concentration index plotting
+ggconcentration_index(data=res,
+              color_name=c("#6699FF","#990000"), ##Color selection
+              group_name='year', ## Grouping variable for comparing two groups
+              region_name='All included', ##Filter variable
+              measure_name='DALYs (Disability-Adjusted Life Years)', ##Filter variable
+              sex_name='Both', ##Filter variable
+              cause_name='All causes', ##Filter variable
+              rei_name=NULL, ##Filter variable
+              age_name='All ages', ##Filter variable
+              year_name=c(1990,2019), ##Filter variable
+              country_label=c('China','India'),##Label country names in the figure
+              population_count=10e6) ##Population label
+
+#Concentration index comparison
+res_comprare <- GBDconcentration_compare(data=res, # Results of running GBDconcentration_index
+                         group_name='year',  ## Grouping variable for comparing two groups
+                         region_name='All included', ##Filter variable
+                         measure_name='DALYs (Disability-Adjusted Life Years)', ##Filter variable
+                         sex_name='Both', ##Filter variable
+                         cause_name='All causes', ##Filter variable
+                         rei_name=NULL, ##Filter variable
+                         age_name='All ages', ##Filter variable
+                         year_name=c(1990,2019)) ##Filter variable
+```
+
+
+The figure below shows the calculation results of the concentration index, with corresponding concentration index, SE, upper and lower limits, and corresponding P-values
+![](D:/BaiduSyncdisk/2.课题/easy GBDR写作/easyGBDRdocument/concentration_index.png)
+
+The figure below shows the results of the concentration index
+![](D:/BaiduSyncdisk/2.课题/easy GBDR写作/easyGBDRdocument/ggconcentrtion_index.png)
+
+The figure below shows the comparison results of two concentration indices, with two hypothesis test results, one indicating that the variances of the two groups are the same, and the other assuming that the sample sizes of the two groups are large. The results will also be stored in the form of a data frame
+![](D:/BaiduSyncdisk/2.课题/easy GBDR写作/easyGBDRdocument/concentration_compare.png)
+
+\newpage 
+# QCI Calculation and Display
+## Principles
+  The principle of QCI is to use various indicators of a disease to calculate the ratio of Incidence to deaths, the ratio of YLD to YLL, the ratio of Prevalence to DALY, and the ratio of Incidence to Prevalence. Through the PCA method, the above indicators are included to calculate a PCA index, and then the QCI result is obtained. For specific principles, please refer to this literature **A global, regional, and national survey on burden and Quality of Care Index (QCI) of brain and other central nervous system cancers; global burden of disease systematic analysis 1990-2017**
+
+## Demonstration
+### Functions Related to QCI Calculation  
+```{r eval=FALSE}
+# Calculate QCI index
+GBDqci_cal()
+```
+
+
+```{r eval=FALSE}
+# Data reading
+data <- readRDS(file = 'QCI_data.rds') %>% filter(metric == 'Rate') %>% unique()
+## QCI calculation
+res <- GBDqci_cal(data)
+```
+
+
+
+The figure below shows the results after running QCI: MIR is the ratio of Incidence to deaths, YLLtoYLD is the ratio of YLD to YLL, DALtoPER is the ratio of Prevalence to DALY, PERtoINC is the ratio of Incidence to Prevalence. QCI is the final calculated result, and QCI_component is the combination of the basis for QCI calculation
+![](D:/BaiduSyncdisk/2.课题/easy GBDR写作/easyGBDRdocument/QCI.png)
+
+\newpage 
+# Other Function Introductions
+## Quantile()
+Can divide into multiple quantiles based on maximum and minimum values
+```{r eval=FALSE}
+# Data reading
+GBD <- read.csv("E:/clinical data mining/Xiaoming/plot/worldmap/national HIV.csv")
+## Data filtering
+GBD <- GBD %>% filter(sex=='Both' & year == 2019 & measure == 'Incidence')
+## Convert the variable to N quantiles through the Quantile function
+GBD$val2 <- Quantile(GBD$val,n=5)
+    plot <- ggGBDmap(GBD,variable = 'val2',color = 'scale_fill_jco() + scale_color_jco()',
+                     guide_name = 'ASR')
+```
+
+The figure below shows the running results. The generated variable val2 will automatically be converted to a categorical variable and automatically matched with labels
+![](D:/BaiduSyncdisk/2.课题/easy GBDR写作/easyGBDRdocument/quntile.png)
+
+## ggGBDmap()
+Automatically creates beautiful world map layouts based on results from 204 countries
+```{r eval=FALSE}
+# World map plotting
+plot <- ggGBDmap(GBD,variable = 'val2',color = 'scale_fill_jco() + scale_color_jco()',
+                     guide_name = 'ASR')
+```
+
+
+The figure below shows the results of running ggGBDmap(): generates a beautiful world map without Chinese border issues
+![](D:/BaiduSyncdisk/2.课题/easy GBDR写作/easyGBDRdocument/ggGBDmap.png)
+
+## GBD_factor Function
+This function can automatically convert categorical variables in GBD data into ordered categorical variables
+```{r eval=FALSE}
+#  GBD_factor
+## Convert variables in GBD data to ordered factors,
+## If you don't want to convert a variable, choose NULL (default variable, if not selected, you can directly delete this paragraph,
+## For example, rei_order=NULL below can be directly deleted), GBD database default order selects TRUE, custom order, input vector can be, such as c("Deaths", "DALYs (Disability-Adjusted Life Years)","Prevalence", "Incidence")
+data <- read.csv('EC_predict.csv')
+data <- GBD_factor(data,measure_order=T,cause_order=T,
+                       sex_order=T,age_order=T,rei_order=NULL)
+str(data)
+```
+
+The figure below shows the results of running GBD_factor(): you can see that the above results are all converted to ordered categorical variables
+![](D:/BaiduSyncdisk/2.课题/easy GBDR写作/easyGBDRdocument/GBD factor.png)
+
+
+## ggpyramid Function
+This function can draw male-female pyramid graphs
+```{r eval=FALSE}
+## Custom x-axis: select the variable to use as the x-axis
+## Custom group: select the variable for stacked graphs
+## metric
+data <- read.csv('EC_predict.csv')
+data <- GBD_factor(data,measure_order=T,cause_order=T,
+                       sex_order=T,age_order=T,rei_order=NULL)
+
+ ggpyramid(data,group='cause',x_axis='age',metric='Number',percent=F)
+```
+
+
+## ggDx Function
+This function can draw dual coordinate axis graphs of disease rates and disease numbers
+```{r eval=FALSE}
+#data	 GBD data
+# x_axis	 x-axis variable, select from c("age","year")
+# ratio	 Ratio of dual coordinate axes, you can choose "auto" for automatic calculation, or fill in a number
+# group	 Grouping variable
+#ASR	 Whether to select ASR for rate
+case <- read.csv('nation.csv')
+case_trend <- subset(case,
+                         measure== 'Incidence' &
+                           metric != 'Percent' &
+                           year==2019 &
+                           age != 'Age-standardized' &
+                           age != 'All ages')
+
+case_trend <- GBD_factor(case_trend)
+ggDx(case_trend,x_axis='age',ratio='auto') +
+      facet_grid(.~location)
+```
+
+The figure below shows the results of running ggDx(): x-axis is age, y-axis is dual coordinate axes for disease numbers and rates
+![](D:/BaiduSyncdisk/2.课题/easy GBDR写作/easyGBDRdocument/ggDx.png)
+
+## ggGBDsdiASR Function
+This function can draw dual coordinate axis graphs of disease rates and disease numbers
+```{r eval=FALSE}
+#  GBD_factor
+#data	 GBD data
+# x_axis	 x-axis variable, select from c("age","year")
+# ratio	 Ratio of dual coordinate axes, you can choose "auto" for automatic calculation, or fill in a number
+# group	 Grouping variable
+#ASR	 Whether to select ASR for rate
+data <- read.csv('EC_nation.csv',header = T)
+data <- subset(data, age=='Age-standardized' &
+                   metric== 'Rate' &
+                   measure=='Incidence')
+EC <- GBD_factor(EC)
+ggGBDsdiASR(data=EC,span_val=0.5,se_plot=F,cor='pearson')
+```
+
+
+\newpage 
+# How to Use easyGBDR for GBD Data Analysis of Specific Age Groups
+   Currently, many of our students have published first-tier SCI papers on specific age group analyses. The functions here basically all support specific age group analysis. Today we use CKD disease as an example to calculate and analyze results for the specific age group of 40-64 years.
+
+## Download Required Data from Official Website
+   We select CKD disease, select all data for ages 0-95, and select all indicators for download
+![](D:/BaiduSyncdisk/2.课题/easy GBDR写作/easyGBDRdocument/GBD选择界面.png)
+
+
+## Data Download
+```{r eval=FALSE}
+# Data download
+download_GBD(url = 'https://vizhub.healthdata.org/gbd-results/result/e2910f32a73676a795f01856ad6f8c91',
+             dest = getwd())
+```
+
+## Data Reading and Standardization Conversion
+```{r}
+# Data reading and conversion
+data <- GBDread('IHME-GBD_2019_DATA-e2910f32-1.zip')
+```
+
+
+## Partial Data Display
+```{r}
+# Select the required data
+temp <- data  %>%  
+  filter(metric=="Number")  %>%  #Select Number
+  filter(age %in% c("40 to 44","45 to 49","50 to 54"))  %>%  #Reverse selection, remove
+  filter(location%in%c("China")) #Select region
+colnames(temp)
+
+# View data
+unique_variable <- list(measure=unique(temp$measure),
+                        location=unique(temp$location),
+                        sex=unique(temp$sex),
+                        age=unique(temp$age),
+                        cause=unique(temp$cause),
+                        metric=unique(temp$metric),
+                        year=unique(temp$year))
+unique_variable
+```
+## Calculate ASR, Crude Rate, and Disease Number for Ages 40-64
+```{r}
+# 1. Data reading and conversion
+data_sub <- GBDage_recal(data,startage = 40,endage = 60, CI = T)
+head(data_sub)
+unique(data_sub$age)
+unique(data_sub$metric)
+```
+## Calculate EAPC for ASR and Crude Rate
+```{r}
+# EAPC calculation
+res_eapc <- GBDeapc(data = data_sub, rei = F, EAPC_95CI = TRUE, digits = 2, sep = " to ")
+head(res_eapc)
+```
+
+## Calculate AAPC for ASR and Crude Rate
+```{r}
+# AAPC calculation
+res_ASR_aapc <- GBDASR_aapc(
+  data = data_sub,
+  model = "ln",
+  joinpoints = 3,
+  rei_included = F,
+  CI = TRUE,
+  digits = 2,
+  sep = " to ",
+  constant_variance = T
+)
+
+res_age_aapc <- GBDage_aapc(
+  data = data_sub,
+  model = "ln",
+  joinpoints = 3,
+  rei_included = F,
+  CI = TRUE,
+  digits = 2,
+  sep = " to ",
+  constant_variance = T
+)
+res_ASR_aapc[["AAPC"]]
+```
+
+
+```{r}
+# AAPC calculation
+head(res_ASR_aapc[["AAPC"]])
+head(res_age_aapc[["AAPC"]])
+```
+
+## APC Web Version Operation
+```{r}
+# APC web version operation
+# Filter specific age groups
+data_age <- subset(data, age %in% c('40 to 44','45 to 49','50 to 54','55 to 59','60 to 64'))
+
+data_apc_web <- GBDapc_web(
+  data = data_age,
+  startyear = 1990,
+  reference_age = 40, ## 50-54 as reference line
+  reference_year = 1990,
+  measure_name = unique(data_age$measure),
+  cause_name = unique(data_age$cause),
+  sex_name = unique(data_age$sex),
+  location_name = unique(data_age$location),
+  rei_name = NULL
+)
+```
+```{r}
+# APC web version result partial plotting
+ggdrift(
+  data = data_apc_web,
+  CI = T,
+  group_name = "sex",
+  line_size = 1,
+  measure_name = "Incidence",
+  cause_name = "Chronic kidney disease",
+  sex_name = c('Male','Female','Both'),
+  location_name = c('China',"Democratic People's Republic of Korea"),
+  rei_name = NULL
+) + facet_grid(.~location)
+
+```
+
+## APC_IE Operation
+```{r}
+# APC-IE operation
+data_apc_ie <- GBDapc_ie(
+  data = data,
+  startyear = 1990,
+  startage = 40,
+  endage = 60,
+  measure_name = 'Incidence',
+  cause_name = "Chronic kidney disease",
+  sex_name = c('Male','Female','Both'),
+  location_name = 'China',
+  rei_name = NULL
+)
+```
+
+```{r}
+# APC-IE result partial display
+head(data_apc_ie[["APC"]])
+```
+
+
+## GBD Prediction Models
+```{r}
+# NORPRED prediction
+# Filter specific age groups
+data_age <- subset(data, age %in% c('40 to 44','45 to 49','50 to 54','55 to 59','60 to 64'))
+# Model running
+data_nopred <- GBDnorpred_prediction(
+  data = data_age,
+  measure_name= 'Deaths',
+  cause_name = "Chronic kidney disease",
+  location_name = 'China',
+  rei_name = NULL,
+  By_sex = F,
+  predyear = 2044,
+  full_age_adjusted = F ## full_age_adjusted must be set to F
+)
+# Result partial plotting
+ggprediction_Dx(
+  data = data_nopred,
+  ratio = 'auto',
+  CI = F,
+  predict_start = 2020,
+  group_name = "sex",
+  location_name = "China",
+  measure_name = "Deaths",
+  cause_name = "Chronic kidney disease",
+  rei_name = NULL,
+  sex_name = c('Male','Female','Both')
+)
+
+```
+
+
+```{r}
+# BAPC prediction
+# Filter specific age groups
+data_age <- subset(data, age %in% c('40 to 44','45 to 49','50 to 54','55 to 59','60 to 64'))
+# Model running
+data_bapc <- GBDbapc_prediction(
+  data = data_age,
+  measure_name= 'Deaths',
+  cause_name = "Chronic kidney disease",
+  location_name = 'China',
+  rei_name = NULL,
+  By_sex = T, ## Here we choose T, both prediction is based on separate predictions for male and female and then added together
+  predyear = 2044,
+  full_age_adjusted = F, ## full_age_adjusted must be set to F
+  rate_lessen = NULL
+)
+# Result partial plotting
+ggprediction_Dx(
+  data = data_bapc,
+  ratio = 'auto',
+  CI = F,
+  predict_start = 2020,
+  group_name = "sex",
+  location_name = "China",
+  measure_name = "Deaths",
+  cause_name = "Chronic kidney disease",
+  rei_name = NULL,
+  sex_name = c('Male','Female','Both')
+)
+
+```
+
+## GBD Decomposition Analysis
+```{r}
+# Decomposition three-factor analysis
+data_decomposition <- GBDdecomposition(
+  data,
+  byear = 1990,
+  compareyear = 2019,
+  startage = 40, ##Select corresponding age group for specific age group
+  endage = 60,  ##Select corresponding age group for specific age group
+  percent = "byear"
+)
+# Result partial plotting
+ggdecomposition(
+  data = data_decomposition,
+  measure_name = "Incidence",
+  location_name = unique(data$location),
+  sex_name = c('Male','Female','Both'),
+  rei_name = NULL,
+  cause_name = "Chronic kidney disease",
+  percent = T ##Plot change percentage
+) + facet_grid(.~sex)
+
+```
+
+
+
+```{r}
+# Decomposition four-factor analysis
+data_decomposition_servity <- GBDdecomposition_servity(
+  data,
+  byear = 1990,
+  compareyear = 2019,
+  measure_name = c('DALYs (Disability-Adjusted Life Years)',"YLDs (Years Lived with Disability)","YLLs (Years of Life Lost)","Deaths"),
+  startage = 40, ##Select corresponding age group for specific age group
+  endage = 60,  ##Select corresponding age group for specific age group
+  percent = "byear"
+)
+# Result partial plotting
+ggdecomposition(
+  data = data_decomposition_servity,
+  measure_name = "Deaths",
+  location_name = unique(data$location),
+  sex_name = c('Male','Female','Both'),
+  rei_name = NULL,
+  cause_name = "Chronic kidney disease",
+  percent = T ##Plot change percentage
+) + facet_grid(.~sex)
+
+```
+
+```{r}
+# Decomposition N-factor analysis
+data_decomposition_subcategory <- GBDdecomposition_subcategory(
+  data,
+  byear = 1990,
+  compareyear = 2019,
+  subcategory = unique(data$cause), #Note the order
+  startage = 40, ##Select corresponding age group for specific age group
+  endage = 60,  ##Select corresponding age group for specific age group
+  percent = "byear"
+)
+# Result partial plotting
+ggdecomposition(
+  data = data_decomposition_subcategory,
+  measure_name = "Deaths",
+  location_name = "China",
+  sex_name = c('Male','Female','Both'),
+  rei_name = NULL,
+  cause_name = "Chronic kidney disease",
+  percent = F ##Plot change percentage
+) + facet_grid(.~sex)
+
+```
+
+
+## Inequality Analysis
+```{r eval=FALSE}
+# Using results after GBDage_recal: but requires 204 countries, we will not demonstrate here
+data_slope <- GBDslope_index(
+  data = data_sub,
+  all_age_range = c(40,60), ##This is the parameter for specific age group analysis
+  SDI = T,
+  GBDregion = T,
+  SuperGBDregion = T
+)
+
+data_concentration <- GBDconcentration_index(
+  data = data_sub,
+  all_age_range = c(40,60), ##This is the parameter for specific age group analysis
+  SDI = T,
+  GBDregion = T,
+  SuperGBDregion = T
+)
+```
+
+## Frontier Analysis
+```{r eval=FALSE}
+# Using results after GBDage_recal: but requires 204 countries, we will not demonstrate here
+data_frontier <- GBDfrontier(
+  data = data_sub,
+  sex_name = "Both",
+  cause_name = "Chronic kidney disease",
+  measure_name = "Deaths",
+  rei_name = NULL,
+  age_name = "Age-stanardized",
+  boot = 100,
+  parallel = T
+) 
+```
+
+## Calculate QCI
+```{r eval=FALSE}
+# Using results after GBDage_recal: but requires 204 countries, we will not demonstrate here
+data_qci <- GBDqci_cal(data_sub)
+```
 RestoreWorkspace: Default
 SaveWorkspace: Default
 AlwaysSaveHistory: Default
