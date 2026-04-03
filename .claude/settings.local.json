@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git lfs:*)",
+      "Bash(find . -type f -exec ls -lh {})",
+      "Bash(sort -k5 -h)",
+      "Bash(git add:*)"
+    ]
+  }
+}

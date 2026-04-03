@@ -1,0 +1,115 @@
+GBDASR_aapc             使用joinpoint command
+                        line进行ASR的APC与AAPC的计算
+GBDRegion               GBD2021对应204个国家对应的SDI quitile, GBD
+                        region, super region
+GBDRegion2021           GBD2021对应的204个国家对应的SDI quitile, GBD
+                        region, super region
+GBDRegion2023           GBD2023对应的204个国家对应的SDI quitile, GBD
+                        region, super region
+GBD_edition             设置GBD的版本号
+GBD_factor              将GBD变量转换成有序变量
+GBDaapc_pairwise        Joinpoint软件里的pairwise比较分析
+GBDage_aapc             使用joinpoint command
+                        line进行不同年龄段的率的APC与AAPC的计算
+GBDage_concentration_index
+                        计算GBD数据官网可以查询到的年龄段的集中指数
+GBDage_recal            重新计算不同年龄段的ASR与number
+GBDage_slope_index      计算GBD数据官网可以查询到的年龄段的斜度指数
+GBDapc_ie               用STATA软件的APC_ie进行APC分析
+GBDapc_interact         GBD数据交互作用分析
+GBDapc_web              APC网页版工具分析
+GBDbapc_COVID           用BAPC方法预测COVID对疾病负担(2020及2021)的影响
+GBDbapc_prediction      Prediction of rate for GBD data using BAPC
+                        package
+GBDcanproj_prediction   GBD数据canproj预测函数
+GBDcause_sum            合并GBD不同的cause
+GBDconcentration_compare
+                        比较两组的集中指数
+GBDconcentration_index
+                        计算GBD数据的集中指数
+GBDdecomposition        3因素分解分析: population growth, aging and
+                        rate change
+GBDdecomposition_HGQ    HQG方法的3因素分解分析: population growth,
+                        aging and rate change
+GBDdecomposition_risk   分解风险因素
+GBDdecomposition_servity
+                        4因素分解分析: population growth, aging and
+                        prevalence, Case fatality and disease severity
+GBDdecomposition_subcategory
+                        N个因素分解分析: population growth, aging and
+                        rate change of different disease subcategory
+GBDdecomposition_table
+                        将分解分析运行结果整理成表格
+GBDeapc                 计算GBD不同年龄段rate包括ASR的EAPC
+GBDfrontier             frontier分析
+GBDfrontier_table       将GBDfrontier运行结果整理成表格形式
+GBDid_trans_normalization
+                        将GBD数据的id转换成name
+GBDlist_view            展示GBD函数运行后的list结果并进行保存
+GBDnorpred_COVID        用norpred方法预测COVID对疾病负担(2020及2021)的影响
+GBDnorpred_prediction   GBD数据nopred预测函数
+GBDorder                GBD 27个地区排序
+GBDpopulation_2019      GBD2019人口数据
+GBDpopulation_2021      GBD2021人口数据
+GBDpopulation_2023      GBD2023人口数据
+GBDprediction           GBD2017预测人口学数据
+GBDqci_cal              计算Quality of Care Index (QCI) measure
+GBDread                 直接读取GBD官网下载后的GBD压缩文件或者批量读取文件夹下的多个GBD压缩文件，并进行标准化处理
+GBDread_csv             直接读取GBD官网下载后的GBD的csv格式文件，并进行标准化处理
+GBDrei_age_recal        重新计算含rei数据的不同年龄段的ASR与number
+GBDrei_sum              合并GBD不同的rei
+GBDslope_index          计算GBD数据ASR和all age rate的斜度指数
+GBDtrans_normalization
+                        将GBD目前的国家名称转换成以往的国家名称
+Quantile                quantile of variable
+SDI2019                 地区及国家对应的1990-2019的SDI
+SDI2021                 地区及国家对应的1980-2021的SDI
+SDI2023                 地区及国家对应的1980-2023的SDI
+WHOpop_predict          联合国预测人口数据
+apcinteract_table       时期、年龄、出生的两因素交互表格
+check_envir_easyGBDR    安装easyGBDR所需要的依赖包
+config_stata            设置stata路径
+download_GBD            利用GBD下载网址直接下载数据至指定文件夹
+easyGBDR_document       easyGBDR学习使用资料
+factor_order            将location,sex, rei, cause, measure,
+                        age转换成有序变量所需要的list
+ggAgeDeviations         GBDapc_web图形绘制7
+ggCohDeviations         GBDapc_web图形绘制9
+ggCrossAge              GBDapc_web图形绘制5
+ggDx                    绘制疾病数和率的双坐标轴
+ggGBDmap                GBD数据世界地图绘制
+ggGBDsdiASR             ASR与SDI数据的相关性图绘制
+ggLong2CrossRR          GBDapc_web图形绘制6
+ggLongAge               GBDapc_web图形绘制4
+ggPerDeviations         GBDapc_web图形绘制8
+ggTemporalTrends        GBDapc_web图形绘制10
+ggapc_interaction       时期、年龄、出生的两因素交互作图
+ggcohortRR              GBDapc_web图形绘制2
+ggcolor_sd              从图中提取颜色
+ggconcentration_index   集中指数绘图
+ggdecomposition         分解分析作图
+ggdrift                 GBDapc_web图形绘制1
+ggfrontier              前沿分析绘图
+ggjoinpoint_apc         g用GBDASR_aapc 或
+                        GBDage_aapc结果进行单组joinpoint的绘制与比较
+ggjoinpoint_compare     用GBDASR_aapc 或
+                        GBDage_aapc结果进行多组joinpoint的绘制与比较
+ggperiodRR              GBDapc_web图形绘制3
+ggprediction_ASR        根据GBDnorpred_prediction或GBDbapc_prediction进行绘制
+ggprediction_Dx         根据GBDnorpred_prediction或GBDbapc_prediction进行绘制
+ggprediction_age_Dx     根据GBDnorpred_prediction或GBDbapc_prediction进行绘制
+ggprediction_age_number
+                        根据GBDnorpred_prediction或GBDbapc_prediction进行绘制
+ggprediction_age_rate   根据GBDnorpred_prediction或GBDbapc_prediction进行绘制
+ggprediction_number     根据GBDnorpred_prediction或GBDbapc_prediction进行绘制
+ggpyramid               男女性金字塔图绘制
+ggslope_index           斜度指数绘图
+ggtrend                 GBD数据变化图
+ggtrend3                GBD数据变化图：3个年份
+ggtrend4                GBD数据变化图：4个年份
+ggtrend5                GBD数据变化图：5个年份
+merge_GBDLists          合并easyGBDR函数产生的list形式的数据
+stata_package_install   直接通过R命令安装stata程序的程序包
+std_GBD2019             GBD2019标准人口学结构数据
+std_GBD2021             GBD2021标准人口学结构数据
+update_easyGBDR         更新easyGBDR包

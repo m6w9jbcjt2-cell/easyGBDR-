@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html>
+<head><title>R: Anlysis packge for GBD database</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body><div class="container">
+<h1> Anlysis packge for GBD database
+<img class="toplogo" src="../../../doc/html/Rlogo.svg" alt="[R logo]" />
+</h1>
+<hr/>
+<div style="text-align: center;">
+<a href="../../../doc/html/packages.html"><img class="arrow" src="../../../doc/html/left.jpg" alt="[Up]" /></a>
+<a href="../../../doc/html/index.html"><img class="arrow" src="../../../doc/html/up.jpg" alt="[Top]" /></a>
+</div><h2>Documentation for package &lsquo;easyGBDR&rsquo; version 3.1.3</h2>
+
+<ul><li><a href="../DESCRIPTION">DESCRIPTION file</a>.</li>
+</ul>
+
+<h2>Help Pages</h2>
+
+
+<table style="width: 100%;">
+<tr><td style="width: 25%;"><a href="apcinteract_table.html">apcinteract_table</a></td>
+<td>时期、年龄、出生的两因素交互表格</td></tr>
+<tr><td style="width: 25%;"><a href="check_envir_easyGBDR.html">check_envir_easyGBDR</a></td>
+<td>安装easyGBDR所需要的依赖包</td></tr>
+<tr><td style="width: 25%;"><a href="config_stata.html">config_stata</a></td>
+<td>设置stata路径</td></tr>
+<tr><td style="width: 25%;"><a href="download_GBD.html">download_GBD</a></td>
+<td>利用GBD下载网址直接下载数据至指定文件夹</td></tr>
+<tr><td style="width: 25%;"><a href="easyGBDR_document.html">easyGBDR_document</a></td>
+<td>easyGBDR学习使用资料</td></tr>
+<tr><td style="width: 25%;"><a href="factor_order.html">factor_order</a></td>
+<td>将location,sex, rei, cause, measure, age转换成有序变量所需要的list</td></tr>
+<tr><td style="width: 25%;"><a href="GBDaapc_pairwise.html">GBDaapc_pairwise</a></td>
+<td>Joinpoint软件里的pairwise比较分析</td></tr>
+<tr><td style="width: 25%;"><a href="GBDage_aapc.html">GBDage_aapc</a></td>
+<td>使用joinpoint command line进行不同年龄段的率的APC与AAPC的计算</td></tr>
+<tr><td style="width: 25%;"><a href="GBDage_concentration_index.html">GBDage_concentration_index</a></td>
+<td>计算GBD数据官网可以查询到的年龄段的集中指数</td></tr>
+<tr><td style="width: 25%;"><a href="GBDage_recal.html">GBDage_recal</a></td>
+<td>重新计算不同年龄段的ASR与number</td></tr>
+<tr><td style="width: 25%;"><a href="GBDage_slope_index.html">GBDage_slope_index</a></td>
+<td>计算GBD数据官网可以查询到的年龄段的斜度指数</td></tr>
+<tr><td style="width: 25%;"><a href="GBDapc_ie.html">GBDapc_ie</a></td>
+<td>用STATA软件的APC_ie进行APC分析</td></tr>
+<tr><td style="width: 25%;"><a href="GBDapc_interact.html">GBDapc_interact</a></td>
+<td>GBD数据交互作用分析</td></tr>
+<tr><td style="width: 25%;"><a href="GBDapc_web.html">GBDapc_web</a></td>
+<td>APC网页版工具分析</td></tr>
+<tr><td style="width: 25%;"><a href="GBDASR_aapc.html">GBDASR_aapc</a></td>
+<td>使用joinpoint command line进行ASR的APC与AAPC的计算</td></tr>
+<tr><td style="width: 25%;"><a href="GBDbapc_COVID.html">GBDbapc_COVID</a></td>
+<td>用BAPC方法预测COVID对疾病负担(2020及2021)的影响</td></tr>
+<tr><td style="width: 25%;"><a href="GBDbapc_prediction.html">GBDbapc_prediction</a></td>
+<td>Prediction of rate for GBD data using BAPC package</td></tr>
+<tr><td style="width: 25%;"><a href="GBDcanproj_prediction.html">GBDcanproj_prediction</a></td>
+<td>GBD数据canproj预测函数</td></tr>
+<tr><td style="width: 25%;"><a href="GBDcause_sum.html">GBDcause_sum</a></td>
+<td>合并GBD不同的cause</td></tr>
+<tr><td style="width: 25%;"><a href="GBDconcentration_compare.html">GBDconcentration_compare</a></td>
+<td>比较两组的集中指数</td></tr>
+<tr><td style="width: 25%;"><a href="GBDconcentration_index.html">GBDconcentration_index</a></td>
+<td>计算GBD数据的集中指数</td></tr>
+<tr><td style="width: 25%;"><a href="GBDdecomposition.html">GBDdecomposition</a></td>
+<td>3因素分解分析: population growth, aging and rate change</td></tr>
+<tr><td style="width: 25%;"><a href="GBDdecomposition_HGQ.html">GBDdecomposition_HGQ</a></td>
+<td>HQG方法的3因素分解分析: population growth, aging and rate change</td></tr>
+<tr><td style="width: 25%;"><a href="GBDdecomposition_risk.html">GBDdecomposition_risk</a></td>
+<td>分解风险因素</td></tr>
+<tr><td style="width: 25%;"><a href="GBDdecomposition_servity.html">GBDdecomposition_servity</a></td>
+<td>4因素分解分析: population growth, aging and prevalence, Case fatality and disease severity</td></tr>
+<tr><td style="width: 25%;"><a href="GBDdecomposition_subcategory.html">GBDdecomposition_subcategory</a></td>
+<td>N个因素分解分析: population growth, aging and rate change of different disease subcategory</td></tr>
+<tr><td style="width: 25%;"><a href="GBDdecomposition_table.html">GBDdecomposition_table</a></td>
+<td>将分解分析运行结果整理成表格</td></tr>
+<tr><td style="width: 25%;"><a href="GBDeapc.html">GBDeapc</a></td>
+<td>计算GBD不同年龄段rate包括ASR的EAPC</td></tr>
+<tr><td style="width: 25%;"><a href="GBDfrontier.html">GBDfrontier</a></td>
+<td>frontier分析</td></tr>
+<tr><td style="width: 25%;"><a href="GBDfrontier_table.html">GBDfrontier_table</a></td>
+<td>将GBDfrontier运行结果整理成表格形式</td></tr>
+<tr><td style="width: 25%;"><a href="GBDid_trans_normalization.html">GBDid_trans_normalization</a></td>
+<td>将GBD数据的id转换成name</td></tr>
+<tr><td style="width: 25%;"><a href="GBDlist_view.html">GBDlist_view</a></td>
+<td>展示GBD函数运行后的list结果并进行保存</td></tr>
+<tr><td style="width: 25%;"><a href="GBDnorpred_COVID.html">GBDnorpred_COVID</a></td>
+<td>用norpred方法预测COVID对疾病负担(2020及2021)的影响</td></tr>
+<tr><td style="width: 25%;"><a href="GBDnorpred_prediction.html">GBDnorpred_prediction</a></td>
+<td>GBD数据nopred预测函数</td></tr>
+<tr><td style="width: 25%;"><a href="GBDorder.html">GBDorder</a></td>
+<td>GBD 27个地区排序</td></tr>
+<tr><td style="width: 25%;"><a href="GBDpopulation_2019.html">GBDpopulation_2019</a></td>
+<td>GBD2019人口数据</td></tr>
+<tr><td style="width: 25%;"><a href="GBDpopulation_2021.html">GBDpopulation_2021</a></td>
+<td>GBD2021人口数据</td></tr>
+<tr><td style="width: 25%;"><a href="GBDpopulation_2023.html">GBDpopulation_2023</a></td>
+<td>GBD2023人口数据</td></tr>
+<tr><td style="width: 25%;"><a href="GBDprediction.html">GBDprediction</a></td>
+<td>GBD2017预测人口学数据</td></tr>
+<tr><td style="width: 25%;"><a href="GBDqci_cal.html">GBDqci_cal</a></td>
+<td>计算Quality of Care Index (QCI) measure</td></tr>
+<tr><td style="width: 25%;"><a href="GBDread.html">GBDread</a></td>
+<td>直接读取GBD官网下载后的GBD压缩文件或者批量读取文件夹下的多个GBD压缩文件，并进行标准化处理</td></tr>
+<tr><td style="width: 25%;"><a href="GBDread_csv.html">GBDread_csv</a></td>
+<td>直接读取GBD官网下载后的GBD的csv格式文件，并进行标准化处理</td></tr>
+<tr><td style="width: 25%;"><a href="GBDRegion.html">GBDRegion</a></td>
+<td>GBD2021对应204个国家对应的SDI quitile, GBD region, super region</td></tr>
+<tr><td style="width: 25%;"><a href="GBDRegion2021.html">GBDRegion2021</a></td>
+<td>GBD2021对应的204个国家对应的SDI quitile, GBD region, super region</td></tr>
+<tr><td style="width: 25%;"><a href="GBDRegion2023.html">GBDRegion2023</a></td>
+<td>GBD2023对应的204个国家对应的SDI quitile, GBD region, super region</td></tr>
+<tr><td style="width: 25%;"><a href="GBDrei_age_recal.html">GBDrei_age_recal</a></td>
+<td>重新计算含rei数据的不同年龄段的ASR与number</td></tr>
+<tr><td style="width: 25%;"><a href="GBDrei_sum.html">GBDrei_sum</a></td>
+<td>合并GBD不同的rei</td></tr>
+<tr><td style="width: 25%;"><a href="GBDslope_index.html">GBDslope_index</a></td>
+<td>计算GBD数据ASR和all age rate的斜度指数</td></tr>
+<tr><td style="width: 25%;"><a href="GBDtrans_normalization.html">GBDtrans_normalization</a></td>
+<td>将GBD目前的国家名称转换成以往的国家名称</td></tr>
+<tr><td style="width: 25%;"><a href="GBD_edition.html">GBD_edition</a></td>
+<td>设置GBD的版本号</td></tr>
+<tr><td style="width: 25%;"><a href="GBD_factor.html">GBD_factor</a></td>
+<td>将GBD变量转换成有序变量</td></tr>
+<tr><td style="width: 25%;"><a href="ggAgeDeviations.html">ggAgeDeviations</a></td>
+<td>GBDapc_web图形绘制7</td></tr>
+<tr><td style="width: 25%;"><a href="ggapc_interaction.html">ggapc_interaction</a></td>
+<td>时期、年龄、出生的两因素交互作图</td></tr>
+<tr><td style="width: 25%;"><a href="ggCohDeviations.html">ggCohDeviations</a></td>
+<td>GBDapc_web图形绘制9</td></tr>
+<tr><td style="width: 25%;"><a href="ggcohortRR.html">ggcohortRR</a></td>
+<td>GBDapc_web图形绘制2</td></tr>
+<tr><td style="width: 25%;"><a href="ggcolor_sd.html">ggcolor_sd</a></td>
+<td>从图中提取颜色</td></tr>
+<tr><td style="width: 25%;"><a href="ggconcentration_index.html">ggconcentration_index</a></td>
+<td>集中指数绘图</td></tr>
+<tr><td style="width: 25%;"><a href="ggCrossAge.html">ggCrossAge</a></td>
+<td>GBDapc_web图形绘制5</td></tr>
+<tr><td style="width: 25%;"><a href="ggdecomposition.html">ggdecomposition</a></td>
+<td>分解分析作图</td></tr>
+<tr><td style="width: 25%;"><a href="ggdrift.html">ggdrift</a></td>
+<td>GBDapc_web图形绘制1</td></tr>
+<tr><td style="width: 25%;"><a href="ggDx.html">ggDx</a></td>
+<td>绘制疾病数和率的双坐标轴</td></tr>
+<tr><td style="width: 25%;"><a href="ggfrontier.html">ggfrontier</a></td>
+<td>前沿分析绘图</td></tr>
+<tr><td style="width: 25%;"><a href="ggGBDmap.html">ggGBDmap</a></td>
+<td>GBD数据世界地图绘制</td></tr>
+<tr><td style="width: 25%;"><a href="ggGBDsdiASR.html">ggGBDsdiASR</a></td>
+<td>ASR与SDI数据的相关性图绘制</td></tr>
+<tr><td style="width: 25%;"><a href="ggjoinpoint_apc.html">ggjoinpoint_apc</a></td>
+<td>g用GBDASR_aapc 或 GBDage_aapc结果进行单组joinpoint的绘制与比较</td></tr>
+<tr><td style="width: 25%;"><a href="ggjoinpoint_compare.html">ggjoinpoint_compare</a></td>
+<td>用GBDASR_aapc 或 GBDage_aapc结果进行多组joinpoint的绘制与比较</td></tr>
+<tr><td style="width: 25%;"><a href="ggLong2CrossRR.html">ggLong2CrossRR</a></td>
+<td>GBDapc_web图形绘制6</td></tr>
+<tr><td style="width: 25%;"><a href="ggLongAge.html">ggLongAge</a></td>
+<td>GBDapc_web图形绘制4</td></tr>
+<tr><td style="width: 25%;"><a href="ggPerDeviations.html">ggPerDeviations</a></td>
+<td>GBDapc_web图形绘制8</td></tr>
+<tr><td style="width: 25%;"><a href="ggperiodRR.html">ggperiodRR</a></td>
+<td>GBDapc_web图形绘制3</td></tr>
+<tr><td style="width: 25%;"><a href="ggprediction_age_Dx.html">ggprediction_age_Dx</a></td>
+<td>根据GBDnorpred_prediction或GBDbapc_prediction进行绘制</td></tr>
+<tr><td style="width: 25%;"><a href="ggprediction_age_number.html">ggprediction_age_number</a></td>
+<td>根据GBDnorpred_prediction或GBDbapc_prediction进行绘制</td></tr>
+<tr><td style="width: 25%;"><a href="ggprediction_age_rate.html">ggprediction_age_rate</a></td>
+<td>根据GBDnorpred_prediction或GBDbapc_prediction进行绘制</td></tr>
+<tr><td style="width: 25%;"><a href="ggprediction_ASR.html">ggprediction_ASR</a></td>
+<td>根据GBDnorpred_prediction或GBDbapc_prediction进行绘制</td></tr>
+<tr><td style="width: 25%;"><a href="ggprediction_Dx.html">ggprediction_Dx</a></td>
+<td>根据GBDnorpred_prediction或GBDbapc_prediction进行绘制</td></tr>
+<tr><td style="width: 25%;"><a href="ggprediction_number.html">ggprediction_number</a></td>
+<td>根据GBDnorpred_prediction或GBDbapc_prediction进行绘制</td></tr>
+<tr><td style="width: 25%;"><a href="ggpyramid.html">ggpyramid</a></td>
+<td>男女性金字塔图绘制</td></tr>
+<tr><td style="width: 25%;"><a href="ggslope_index.html">ggslope_index</a></td>
+<td>斜度指数绘图</td></tr>
+<tr><td style="width: 25%;"><a href="ggTemporalTrends.html">ggTemporalTrends</a></td>
+<td>GBDapc_web图形绘制10</td></tr>
+<tr><td style="width: 25%;"><a href="ggtrend.html">ggtrend</a></td>
+<td>GBD数据变化图</td></tr>
+<tr><td style="width: 25%;"><a href="ggtrend3.html">ggtrend3</a></td>
+<td>GBD数据变化图：3个年份</td></tr>
+<tr><td style="width: 25%;"><a href="ggtrend4.html">ggtrend4</a></td>
+<td>GBD数据变化图：4个年份</td></tr>
+<tr><td style="width: 25%;"><a href="ggtrend5.html">ggtrend5</a></td>
+<td>GBD数据变化图：5个年份</td></tr>
+<tr><td style="width: 25%;"><a href="merge_GBDLists.html">merge_GBDLists</a></td>
+<td>合并easyGBDR函数产生的list形式的数据</td></tr>
+<tr><td style="width: 25%;"><a href="Quantile.html">Quantile</a></td>
+<td>quantile of variable</td></tr>
+<tr><td style="width: 25%;"><a href="SDI2019.html">SDI2019</a></td>
+<td>地区及国家对应的1990-2019的SDI</td></tr>
+<tr><td style="width: 25%;"><a href="SDI2021.html">SDI2021</a></td>
+<td>地区及国家对应的1980-2021的SDI</td></tr>
+<tr><td style="width: 25%;"><a href="SDI2023.html">SDI2023</a></td>
+<td>地区及国家对应的1980-2023的SDI</td></tr>
+<tr><td style="width: 25%;"><a href="stata_package_install.html">stata_package_install</a></td>
+<td>直接通过R命令安装stata程序的程序包</td></tr>
+<tr><td style="width: 25%;"><a href="std_GBD2019.html">std_GBD2019</a></td>
+<td>GBD2019标准人口学结构数据</td></tr>
+<tr><td style="width: 25%;"><a href="std_GBD2021.html">std_GBD2021</a></td>
+<td>GBD2021标准人口学结构数据</td></tr>
+<tr><td style="width: 25%;"><a href="update_easyGBDR.html">update_easyGBDR</a></td>
+<td>更新easyGBDR包</td></tr>
+<tr><td style="width: 25%;"><a href="WHOpop_predict.html">WHOpop_predict</a></td>
+<td>联合国预测人口数据</td></tr>
+</table>
+</div></body></html>
